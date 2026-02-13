@@ -4,6 +4,7 @@ import { MultiAgentDashboard } from './pages/MultiAgentDashboard';
 import { ProjectManagement } from './pages/ProjectManagement';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
+import { DataSourcesPage } from './pages/DataSourcesPage';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotFound from './pages/NotFound';
@@ -45,6 +46,7 @@ function App() {
 
                   {/* Account management */}
                   <Route path="api-keys" element={<ApiKeysPage />} />
+                  <Route path="data-sources" element={<DataSourcesPage />} />
                   <Route path="billing" element={<BillingPage />} />
 
                   {/* Project management */}

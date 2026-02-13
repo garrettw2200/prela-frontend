@@ -20,6 +20,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const accountItems = [
     { path: '/api-keys', label: 'API Keys' },
+    { path: '/data-sources', label: 'Integrations' },
     { path: '/billing', label: 'Billing' },
   ];
 
