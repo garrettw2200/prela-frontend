@@ -2,7 +2,7 @@
  * Projects API client
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { apiClient } from './client';
 
 export interface Project {
   project_id: string;
@@ -40,58 +40,26 @@ export interface WebhookStatus {
  * List all projects with statistics
  */
 export async function fetchProjects(limit = 100, offset = 0): Promise<ProjectSummary[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/projects?limit=${limit}&offset=${offset}`,
-    {
-      headers: {
-        'X-API-Key': 'dev-key', // TODO: Implement proper auth
-      },
-    }
+  const response = await apiClient.get<ProjectSummary[]>(
+    `/projects?limit=${limit}&offset=${offset}`
   );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch projects: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
  * Create a new project
  */
 export async function createProject(project: ProjectCreate): Promise<Project> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/projects`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': 'dev-key', // TODO: Implement proper auth
-    },
-    body: JSON.stringify(project),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || `Failed to create project: ${response.statusText}`);
-  }
-
-  return response.json();
+  const response = await apiClient.post<Project>('/projects', project);
+  return response.data;
 }
 
 /**
  * Get project details
  */
 export async function fetchProject(projectId: string): Promise<Project> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/projects/${projectId}`, {
-    headers: {
-      'X-API-Key': 'dev-key', // TODO: Implement proper auth
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch project: ${response.statusText}`);
-  }
-
-  return response.json();
+  const response = await apiClient.get<Project>(`/projects/${projectId}`);
+  return response.data;
 }
 
 /**
@@ -101,54 +69,23 @@ export async function updateProject(
   projectId: string,
   update: ProjectUpdate
 ): Promise<Project> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/projects/${projectId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': 'dev-key', // TODO: Implement proper auth
-    },
-    body: JSON.stringify(update),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to update project: ${response.statusText}`);
-  }
-
-  return response.json();
+  const response = await apiClient.put<Project>(`/projects/${projectId}`, update);
+  return response.data;
 }
 
 /**
  * Delete project
  */
 export async function deleteProject(projectId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/projects/${projectId}`, {
-    method: 'DELETE',
-    headers: {
-      'X-API-Key': 'dev-key', // TODO: Implement proper auth
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete project: ${response.statusText}`);
-  }
+  await apiClient.delete(`/projects/${projectId}`);
 }
 
 /**
  * Get webhook receiver status for project
  */
 export async function fetchWebhookStatus(projectId: string): Promise<WebhookStatus> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/projects/${projectId}/webhook-status`,
-    {
-      headers: {
-        'X-API-Key': 'dev-key', // TODO: Implement proper auth
-      },
-    }
+  const response = await apiClient.get<WebhookStatus>(
+    `/projects/${projectId}/webhook-status`
   );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch webhook status: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }

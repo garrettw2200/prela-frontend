@@ -11,6 +11,7 @@ import { fetchTraceErrorAnalysis } from '../api/errors';
 import AgentGraph from '../components/multi-agent/AgentGraph';
 import TaskTimeline from '../components/multi-agent/TaskTimeline';
 import { ActionableErrorMessage, HallucinationDetection } from '../components/errors';
+import DebugPanel from '../components/debug/DebugPanel';
 
 interface ExecutionDetailProps {
   executionId: string;
@@ -232,6 +233,14 @@ export default function ExecutionDetail({ executionId, onClose }: ExecutionDetai
               projectId={projectId}
               traceId={execution.trace_id}
               similarityThreshold={0.7}
+            />
+          </div>
+
+          {/* Debug Analysis Section */}
+          <div className="mb-6">
+            <DebugPanel
+              projectId={projectId}
+              traceId={execution.trace_id}
             />
           </div>
 

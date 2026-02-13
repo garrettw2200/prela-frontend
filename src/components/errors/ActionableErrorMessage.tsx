@@ -5,13 +5,13 @@
  * one-click replay buttons, and code snippets.
  */
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  ExclamationCircleIcon,
-  LightBulbIcon,
-  SparklesIcon,
-  ClockIcon,
-} from '@heroicons/react/24/outline';
+  AlertCircle as ExclamationCircleIcon,
+  Lightbulb as LightBulbIcon,
+  Sparkles as SparklesIcon,
+  Clock as ClockIcon,
+} from 'lucide-react';
 import { ErrorAnalysis, ErrorRecommendation, ErrorExplanation, fetchErrorExplanation } from '@/api/errors';
 import { executeReplay } from '@/api/replay';
 import { useToast } from '@/components/Toast';

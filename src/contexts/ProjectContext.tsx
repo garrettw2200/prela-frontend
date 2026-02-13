@@ -49,6 +49,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     queryClient.invalidateQueries({ queryKey: ['execution-timeline'] });
     queryClient.invalidateQueries({ queryKey: ['multi-agent-executions'] });
     queryClient.invalidateQueries({ queryKey: ['insights-summary'] });
+    queryClient.invalidateQueries({ queryKey: ['drift-alerts'] });
+    queryClient.invalidateQueries({ queryKey: ['drift-baselines'] });
+    queryClient.invalidateQueries({ queryKey: ['alert-rules'] });
   };
 
   // Auto-select first project on mount if none selected

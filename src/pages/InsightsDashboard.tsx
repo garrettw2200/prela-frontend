@@ -6,6 +6,7 @@ import { HealthScore } from '../components/insights/HealthScore';
 import { TopIssues } from '../components/insights/TopIssues';
 import { CostInsights } from '../components/insights/CostInsights';
 import { SecuritySummary } from '../components/insights/SecuritySummary';
+import { DriftAlerts } from '../components/insights/DriftAlerts';
 
 const TIME_WINDOWS = [
   { value: '7d', label: '7 days' },
@@ -91,10 +92,11 @@ export function InsightsDashboard() {
             errorRate={data.error_rate}
             traceCount={data.trace_count}
           />
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
             <TopIssues issues={data.top_issues} />
             <CostInsights data={data.cost_insights} />
             <SecuritySummary data={data.security_summary} />
+            <DriftAlerts data={data.drift_summary} />
           </div>
         </div>
       )}

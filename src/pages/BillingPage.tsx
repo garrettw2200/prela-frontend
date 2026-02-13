@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../api/client';
 
 interface Subscription {
@@ -26,7 +26,7 @@ const PRICING_TIERS: PricingTier[] = [
     name: 'Free',
     price: '$0',
     features: [
-      '100k traces/month',
+      '50k traces/month',
       '30-day retention',
       'OpenAI & Anthropic',
       'LangChain & LlamaIndex (basic)',

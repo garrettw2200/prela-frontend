@@ -27,12 +27,19 @@ export interface SecuritySummaryData {
   by_type: Record<string, number>;
 }
 
+export interface DriftSummaryData {
+  active_alerts: number;
+  by_severity: Record<string, number>;
+  agents_affected: number;
+}
+
 export interface InsightsSummary {
   health_score: number;
   health_trend: HealthTrendPoint[];
   top_issues: TopIssue[];
   cost_insights: CostInsights;
   security_summary: SecuritySummaryData;
+  drift_summary: DriftSummaryData;
   trace_count: number;
   error_rate: number;
   time_window: string;
