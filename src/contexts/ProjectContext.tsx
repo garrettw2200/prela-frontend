@@ -48,6 +48,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     queryClient.invalidateQueries({ queryKey: ['n8n-ai-nodes'] });
     queryClient.invalidateQueries({ queryKey: ['execution-timeline'] });
     queryClient.invalidateQueries({ queryKey: ['multi-agent-executions'] });
+    queryClient.invalidateQueries({ queryKey: ['insights-summary'] });
   };
 
   // Auto-select first project on mount if none selected

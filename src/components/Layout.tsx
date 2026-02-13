@@ -12,10 +12,9 @@ export default function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
 
   const navItems = [
+    { path: '/insights', label: 'Insights' },
     { path: '/n8n', label: 'n8n Workflows' },
     { path: '/multi-agent', label: 'Multi-Agent' },
-    // Future: Replay dashboard
-    // { path: '/replay', label: 'Replay' },
   ];
 
   const accountItems = [

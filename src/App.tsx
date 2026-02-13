@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { N8nDashboard } from './pages/N8nDashboard';
 import { MultiAgentDashboard } from './pages/MultiAgentDashboard';
+import { InsightsDashboard } from './pages/InsightsDashboard';
 import { ProjectManagement } from './pages/ProjectManagement';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
@@ -40,7 +41,8 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
-                  <Route index element={<Navigate to="/n8n" replace />} />
+                  <Route index element={<Navigate to="/insights" replace />} />
+                  <Route path="insights" element={<InsightsDashboard />} />
                   <Route path="n8n" element={<N8nDashboard />} />
                   <Route path="multi-agent" element={<MultiAgentDashboard />} />
 
