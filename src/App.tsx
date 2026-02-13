@@ -4,6 +4,7 @@ import { MultiAgentDashboard } from './pages/MultiAgentDashboard';
 import { InsightsDashboard } from './pages/InsightsDashboard';
 import { ProjectManagement } from './pages/ProjectManagement';
 import { DriftDashboard } from './pages/DriftDashboard';
+import { EvalGeneratorPage } from './pages/EvalGeneratorPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
@@ -47,6 +48,7 @@ function App() {
                   <Route path="n8n" element={<N8nDashboard />} />
                   <Route path="multi-agent" element={<MultiAgentDashboard />} />
                   <Route path="drift" element={<DriftDashboard />} />
+                  <Route path="eval-generator" element={<EvalGeneratorPage />} />
 
                   {/* Account management */}
                   <Route path="api-keys" element={<ApiKeysPage />} />

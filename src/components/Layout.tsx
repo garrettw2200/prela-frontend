@@ -16,6 +16,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/n8n', label: 'n8n Workflows' },
     { path: '/multi-agent', label: 'Multi-Agent' },
     { path: '/drift', label: 'Drift' },
+    { path: '/eval-generator', label: 'Eval Generator' },
   ];
 
   const accountItems = [
