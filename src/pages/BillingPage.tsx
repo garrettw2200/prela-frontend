@@ -38,13 +38,14 @@ const PRICING_TIERS: PricingTier[] = [
   {
     id: 'lunch-money',
     name: 'Lunch Money',
-    price: '$7',
+    price: '$14',
     features: [
       'All Free features',
       '100k traces/month',
       'CrewAI, AutoGen, LangGraph, Swarm, n8n',
       'All 17+ assertion types',
       'Replay engine (100/month)',
+      'Cost optimization insights',
       'HTTP exporter (cloud sync)',
       'Email support (48h)',
     ],
@@ -53,18 +54,19 @@ const PRICING_TIERS: PricingTier[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '$99',
+    price: '$79',
     features: [
       'All Lunch Money features',
       '1M traces/month',
       '90-day retention',
+      'Security scanning (full)',
+      'Drift detection & alerting',
       'Hallucination detection',
-      'Drift detection',
-      'Natural language search',
-      'Cost optimization',
+      'Debug Agent (AI root cause)',
+      'Eval generation from traces',
       'Priority support (12h)',
     ],
-    cta: 'Coming March 2026',
+    cta: 'Upgrade to Pro',
   },
   {
     id: 'enterprise',
@@ -108,8 +110,8 @@ export const BillingPage: React.FC = () => {
   };
 
   const handleUpgrade = async (tier: string) => {
-    if (tier === 'pro' || tier === 'enterprise') {
-      alert('This tier is not available yet. Coming soon!');
+    if (tier === 'enterprise') {
+      window.location.href = 'mailto:sales@prela.dev?subject=Prela Enterprise Inquiry';
       return;
     }
 
@@ -249,7 +251,7 @@ export const BillingPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {PRICING_TIERS.map((tier) => {
           const isCurrentTier = subscription?.tier === tier.id;
-          const isAvailable = tier.id === 'free' || tier.id === 'lunch-money';
+          const isAvailable = tier.id === 'free' || tier.id === 'lunch-money' || tier.id === 'pro';
 
           return (
             <div

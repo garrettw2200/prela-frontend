@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   triggerDebugAnalysis,
   type DebugAnalysis,
@@ -15,12 +16,27 @@ import {
   type FailureChainEntry,
 } from '../../api/debug';
 
+const PRO_TIERS = ['pro', 'enterprise'];
+
 interface DebugPanelProps {
   projectId: string;
   traceId: string;
 }
 
 export default function DebugPanel({ projectId, traceId }: DebugPanelProps) {
+  const { user } = useAuth();
+  const userTier = user?.tier || 'free';
+
+  if (!PRO_TIERS.includes(userTier)) {
+    return (
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
+        <p className="text-sm text-gray-500 mb-2">Debug Agent requires the Pro plan ($79/month)</p>
+        <a href="/billing" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+          Upgrade to Pro
+        </a>
+      </div>
+    );
+  }
   const [showTimeline, setShowTimeline] = useState(false);
   const [analysis, setAnalysis] = useState<DebugAnalysis | null>(null);
 
