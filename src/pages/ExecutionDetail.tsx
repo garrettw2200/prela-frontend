@@ -148,6 +148,7 @@ export default function ExecutionDetail({ executionId, onClose }: ExecutionDetai
                     spanId={error.span_id}
                     spanName={error.span_name}
                     traceId={errorAnalysis.trace_id}
+                    projectId={projectId}
                     analysis={error.analysis}
                     onReplayTriggered={(executionId) => {
                       console.log('Replay started:', executionId);

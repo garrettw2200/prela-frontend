@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
-import { fetchProjects, deleteProject, ProjectSummary } from '../api/projects';
+import { fetchProjects, deleteProject } from '../api/projects';
 import { CreateProjectForm } from '../components/projects/CreateProjectForm';
 
 export function ProjectManagement() {

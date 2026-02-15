@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchProjects, ProjectSummary } from '../api/projects';
+import { useTeam } from './TeamContext';
 
 interface ProjectContextType {
   currentProject: ProjectSummary | null;
@@ -14,16 +15,17 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
-  // Load projects with React Query
+  // Load projects with React Query, scoped by current team
   const queryClient = useQueryClient();
+  const { currentTeam } = useTeam();
   const {
     data: projects = [],
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => fetchProjects(100, 0),
+    queryKey: ['projects', currentTeam?.id],
+    queryFn: () => fetchProjects(100, 0, currentTeam?.id),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -52,6 +54,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     queryClient.invalidateQueries({ queryKey: ['drift-alerts'] });
     queryClient.invalidateQueries({ queryKey: ['drift-baselines'] });
     queryClient.invalidateQueries({ queryKey: ['alert-rules'] });
+    queryClient.invalidateQueries({ queryKey: ['replay-traces'] });
+    queryClient.invalidateQueries({ queryKey: ['replay-history'] });
+    queryClient.invalidateQueries({ queryKey: ['replay-batches'] });
   };
 
   // Auto-select first project on mount if none selected

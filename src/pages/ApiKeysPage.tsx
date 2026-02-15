@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { listApiKeys, createApiKey, revokeApiKey, ApiKey, CreateApiKeyResponse } from '../api/apiKeys';
 
 export function ApiKeysPage() {
@@ -11,8 +11,6 @@ export function ApiKeysPage() {
   const [newKeyResponse, setNewKeyResponse] = useState<CreateApiKeyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
   // Check if we're coming from a successful checkout
   const fromCheckout = searchParams.get('from') === 'checkout';
 

@@ -82,10 +82,10 @@ export function ActionableErrorMessage({
         onReplayTriggered(result.execution_id);
       }
 
-      toast.success('Replay started with suggested fix');
+      toast.showToast('success', 'Replay started with suggested fix');
     } catch (error) {
       console.error('Failed to execute replay:', error);
-      toast.error('Failed to start replay');
+      toast.showToast('error', 'Failed to start replay');
     } finally {
       setIsExecutingReplay(false);
     }
@@ -93,7 +93,7 @@ export function ActionableErrorMessage({
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast.success('Code copied to clipboard');
+    toast.showToast('success', 'Code copied to clipboard');
   };
 
   return (

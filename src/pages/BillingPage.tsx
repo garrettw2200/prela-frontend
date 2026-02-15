@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useTeam } from '../contexts/TeamContext';
 import { apiClient } from '../api/client';
 
 interface Subscription {
@@ -86,7 +86,7 @@ const PRICING_TIERS: PricingTier[] = [
 ];
 
 export const BillingPage: React.FC = () => {
-  const { user } = useAuth();
+  const { currentTeam } = useTeam();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +125,7 @@ export const BillingPage: React.FC = () => {
       setUpgrading(true);
       const response = await apiClient.post('/api/v1/billing/create-checkout-session', {
         tier,
+        team_id: currentTeam?.id,
         success_url: `${window.location.origin}/api-keys?from=checkout`,
         cancel_url: `${window.location.origin}/billing`,
       });

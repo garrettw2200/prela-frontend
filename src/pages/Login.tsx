@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/Toast';
 
@@ -8,7 +7,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -16,9 +14,8 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      showToast('success', 'Login successful');
-      navigate('/n8n');
+      login();
+      // Clerk handles the redirect after sign-in
     } catch (error) {
       showToast('error', 'Login failed. Please check your credentials.');
     } finally {

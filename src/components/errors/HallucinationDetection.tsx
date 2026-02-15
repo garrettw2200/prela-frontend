@@ -12,8 +12,6 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchHallucinationAnalysis,
-  type HallucinationAnalysis,
-  type ClaimGrounding,
 } from '../../api/errors';
 
 interface HallucinationDetectionProps {
@@ -28,7 +26,7 @@ export default function HallucinationDetection({
   similarityThreshold = 0.7,
 }: HallucinationDetectionProps) {
   const [expandedSpans, setExpandedSpans] = useState<Set<string>>(new Set());
-  const [selectedClaim, setSelectedClaim] = useState<{
+  const [, setSelectedClaim] = useState<{
     spanId: string;
     claimIndex: number;
   } | null>(null);

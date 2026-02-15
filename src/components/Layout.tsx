@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ProjectSelector } from './projects/ProjectSelector';
+import { TeamSelector } from './teams/TeamSelector';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,10 +17,12 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/n8n', label: 'n8n Workflows' },
     { path: '/multi-agent', label: 'Multi-Agent' },
     { path: '/drift', label: 'Drift' },
+    { path: '/replay', label: 'Replay' },
     { path: '/eval-generator', label: 'Eval Generator' },
   ];
 
   const accountItems = [
+    { path: '/team', label: 'Team' },
     { path: '/api-keys', label: 'API Keys' },
     { path: '/data-sources', label: 'Integrations' },
     { path: '/billing', label: 'Billing' },
@@ -57,6 +60,7 @@ export default function Layout({ children }: LayoutProps) {
 
             {/* User menu */}
             <div className="flex items-center gap-4">
+              <TeamSelector />
               <ProjectSelector />
               <span className="text-sm text-gray-500">•</span>
               {accountItems.map((item) => (

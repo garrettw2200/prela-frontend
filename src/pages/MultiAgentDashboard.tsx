@@ -11,7 +11,7 @@ import {
 } from '../api/multi-agent';
 import ExecutionList from '../components/multi-agent/ExecutionList';
 import { DriftAlertBanner } from '../components/drift';
-import { fetchAlerts, updateAlertStatus, StoredAlert, fetchAlertRules, deleteAlertRule } from '../api/drift';
+import { fetchAlerts, updateAlertStatus, StoredAlert, DriftAlert } from '../api/drift';
 import AlertRuleModal from '../components/drift/AlertRuleModal';
 
 export function MultiAgentDashboard() {
@@ -89,28 +89,28 @@ export function MultiAgentDashboard() {
     {} as Record<string, number>
   );
 
-  const handleDismissAlert = async (alert: StoredAlert) => {
+  const handleDismissAlert = async (alert: DriftAlert) => {
+    const storedAlert = alert as unknown as StoredAlert;
     try {
-      await updateAlertStatus(projectId, alert.alert_id, {
+      await updateAlertStatus(projectId, storedAlert.alert_id, {
         status: 'dismissed',
         user_id: user?.id || 'anonymous',
         notes: 'Dismissed from dashboard',
       });
-      // Refetch alerts to update UI
       refetchAlerts();
     } catch (error) {
       console.error('Failed to dismiss alert:', error);
     }
   };
 
-  const handleMarkAsExpected = async (alert: StoredAlert) => {
+  const handleMarkAsExpected = async (alert: DriftAlert) => {
+    const storedAlert = alert as unknown as StoredAlert;
     try {
-      await updateAlertStatus(projectId, alert.alert_id, {
+      await updateAlertStatus(projectId, storedAlert.alert_id, {
         status: 'acknowledged',
         user_id: user?.id || 'anonymous',
         notes: 'Marked as expected behavior',
       });
-      // Refetch alerts to update UI
       refetchAlerts();
     } catch (error) {
       console.error('Failed to acknowledge alert:', error);
@@ -151,7 +151,7 @@ export function MultiAgentDashboard() {
       {/* Drift Alerts */}
       {!driftLoading && driftData && driftData.alerts.length > 0 && (
         <DriftAlertBanner
-          alerts={driftData.alerts}
+          alerts={driftData.alerts as unknown as DriftAlert[]}
           onDismiss={handleDismissAlert}
           onMarkAsExpected={handleMarkAsExpected}
         />

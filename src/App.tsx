@@ -8,6 +8,11 @@ import { EvalGeneratorPage } from './pages/EvalGeneratorPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
+import { ReplayDashboard } from './pages/ReplayDashboard';
+import { ReplayExecutionDetail } from './pages/ReplayExecutionDetail';
+import { BatchReplayDetail } from './pages/BatchReplayDetail';
+import { TeamSettingsPage } from './pages/TeamSettingsPage';
+import { AcceptInvitationPage } from './pages/AcceptInvitationPage';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotFound from './pages/NotFound';
@@ -15,6 +20,7 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
+import { TeamProvider } from './contexts/TeamContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -24,6 +30,7 @@ function App() {
       <ToastProvider>
         <AuthProvider>
           <ProjectProvider>
+            <TeamProvider>
             <BrowserRouter>
               <Routes>
                 {/* Public routes */}
@@ -61,13 +68,20 @@ function App() {
                   {/* Project-specific routes */}
                   <Route path="projects/:projectId/n8n" element={<N8nDashboard />} />
 
-                  {/* Future routes */}
-                  {/* <Route path="replay" element={<ReplayDashboard />} /> */}
+                  {/* Replay */}
+                  <Route path="replay" element={<ReplayDashboard />} />
+                  <Route path="replay/batch/:batchId" element={<BatchReplayDetail />} />
+                  <Route path="replay/:executionId" element={<ReplayExecutionDetail />} />
+
+                  {/* Team */}
+                  <Route path="team" element={<TeamSettingsPage />} />
+                  <Route path="invite/:token" element={<AcceptInvitationPage />} />
 
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
             </BrowserRouter>
+            </TeamProvider>
           </ProjectProvider>
         </AuthProvider>
       </ToastProvider>

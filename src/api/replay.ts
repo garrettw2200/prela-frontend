@@ -122,6 +122,66 @@ export interface ReplayHistoryResponse {
 }
 
 // ============================================================================
+// Batch Replay Interfaces
+// ============================================================================
+
+export interface BatchReplayRequest {
+  trace_ids: string[];
+  parameters?: ReplayParameters;
+}
+
+export interface BatchReplayResponse {
+  batch_id: string;
+  status: string;
+  total_traces: number;
+  created_at: string;
+}
+
+export interface BatchStatusResponse {
+  batch_id: string;
+  project_id: string;
+  status: "pending" | "running" | "completed" | "failed" | "partial";
+  trace_ids: string[];
+  parameters: Record<string, any>;
+  total_traces: number;
+  completed_traces: number;
+  failed_traces: number;
+  created_at: string;
+  started_at?: string;
+  completed_at?: string;
+  error?: string;
+  summary?: {
+    completed: number;
+    failed: number;
+    total: number;
+    cost_delta_usd?: number;
+    token_delta?: number;
+    avg_duration_delta_ms?: number;
+    total_original_cost_usd?: number;
+    total_modified_cost_usd?: number;
+  };
+  executions?: ReplayHistoryItem[];
+}
+
+export interface BatchListItem {
+  batch_id: string;
+  status: string;
+  total_traces: number;
+  completed_traces: number;
+  failed_traces: number;
+  created_at: string;
+  completed_at?: string;
+  parameters: Record<string, any>;
+}
+
+export interface BatchListResponse {
+  batches: BatchListItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+// ============================================================================
 // API Functions
 // ============================================================================
 
@@ -215,6 +275,59 @@ export async function fetchReplayHistory(
 
   const response = await apiClient.get<ReplayHistoryResponse>(
     `/replay/history?${params}`
+  );
+  return response.data;
+}
+
+// ============================================================================
+// Batch Replay API Functions
+// ============================================================================
+
+/**
+ * Trigger batch replay for multiple traces
+ */
+export async function executeBatchReplay(
+  request: BatchReplayRequest,
+  projectId: string
+): Promise<BatchReplayResponse> {
+  const response = await apiClient.post<BatchReplayResponse>(
+    `/replay/batch?project_id=${encodeURIComponent(projectId)}`,
+    request
+  );
+  return response.data;
+}
+
+/**
+ * Get batch replay status
+ */
+export async function fetchBatchStatus(
+  batchId: string,
+  includeExecutions: boolean = false
+): Promise<BatchStatusResponse> {
+  const params = new URLSearchParams();
+  if (includeExecutions) params.append("include_executions", "true");
+  const qs = params.toString() ? `?${params}` : "";
+  const response = await apiClient.get<BatchStatusResponse>(
+    `/replay/batch/${batchId}${qs}`
+  );
+  return response.data;
+}
+
+/**
+ * List batch replay jobs
+ */
+export async function fetchBatchList(
+  projectId: string,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<BatchListResponse> {
+  const params = new URLSearchParams({
+    project_id: projectId,
+    page: page.toString(),
+    page_size: pageSize.toString(),
+  });
+  const response = await apiClient.get<BatchListResponse>(
+    `/replay/batch?${params}`
   );
   return response.data;
 }

@@ -12,8 +12,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import {
   triggerDebugAnalysis,
   type DebugAnalysis,
-  type TimelineEntry,
-  type FailureChainEntry,
 } from '../../api/debug';
 
 const PRO_TIERS = ['pro', 'enterprise'];

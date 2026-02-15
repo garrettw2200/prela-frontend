@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useProject } from '../../contexts/ProjectContext';
+import { useTeam } from '../../contexts/TeamContext';
 import { createProject, Project, ProjectCreate } from '../../api/projects';
 
 interface CreateProjectFormProps {
@@ -11,6 +12,7 @@ interface CreateProjectFormProps {
 export function CreateProjectForm({ onClose, onSuccess }: CreateProjectFormProps) {
   const queryClient = useQueryClient();
   const { refreshProjects } = useProject();
+  const { currentTeam } = useTeam();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -35,7 +37,7 @@ export function CreateProjectForm({ onClose, onSuccess }: CreateProjectFormProps
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: (data: ProjectCreate) => createProject(data),
+    mutationFn: (data: ProjectCreate) => createProject(data, currentTeam?.id),
     onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       refreshProjects();

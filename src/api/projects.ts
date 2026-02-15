@@ -37,20 +37,34 @@ export interface WebhookStatus {
 }
 
 /**
- * List all projects with statistics
+ * List all projects with statistics, optionally scoped by team
  */
-export async function fetchProjects(limit = 100, offset = 0): Promise<ProjectSummary[]> {
+export async function fetchProjects(
+  limit = 100,
+  offset = 0,
+  teamId?: string
+): Promise<ProjectSummary[]> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  if (teamId) params.set('team_id', teamId);
+
   const response = await apiClient.get<ProjectSummary[]>(
-    `/projects?limit=${limit}&offset=${offset}`
+    `/projects?${params.toString()}`
   );
   return response.data;
 }
 
 /**
- * Create a new project
+ * Create a new project, optionally assigned to a team
  */
-export async function createProject(project: ProjectCreate): Promise<Project> {
-  const response = await apiClient.post<Project>('/projects', project);
+export async function createProject(
+  project: ProjectCreate,
+  teamId?: string
+): Promise<Project> {
+  const params = teamId ? `?team_id=${teamId}` : '';
+  const response = await apiClient.post<Project>(`/projects${params}`, project);
   return response.data;
 }
 
