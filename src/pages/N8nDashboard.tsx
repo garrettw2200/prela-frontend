@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { WorkflowList } from '@/components/n8n';
 import { useProject } from '../contexts/ProjectContext';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { QuickSetupCard } from '@/components/onboarding';
+import { fetchN8nWorkflows } from '../api/n8n';
 
 /**
  * n8n Workflow Observability Dashboard
@@ -31,6 +32,21 @@ export function N8nDashboard() {
 
   // Use current project from context
   const activeProjectId = currentProject?.project_id || 'default';
+
+  // Fetch workflows to derive aggregate stats
+  const { data: workflows = [] } = useQuery({
+    queryKey: ['n8n-workflows', activeProjectId],
+    queryFn: () => fetchN8nWorkflows(activeProjectId),
+    enabled: !!currentProject,
+    staleTime: 60 * 1000,
+  });
+
+  const totalWorkflows = workflows.length;
+  const totalExecutions24h = workflows.reduce((sum, w) => sum + (w.execution_count_24h || 0), 0);
+  const totalCost24h = workflows.reduce((sum, w) => sum + (w.total_cost_24h || 0), 0);
+  const avgSuccessRate = totalExecutions24h > 0
+    ? workflows.reduce((sum, w) => sum + (w.success_rate_24h || 0) * (w.execution_count_24h || 0), 0) / totalExecutions24h
+    : 0;
 
   // WebSocket integration for real-time updates
   useWebSocket({
@@ -143,30 +159,22 @@ export function N8nDashboard() {
         <div className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Workflows"
-            value="12"
-            change="+2"
-            changeType="increase"
+            value={String(totalWorkflows)}
             icon={WorkflowIcon}
           />
           <StatCard
             title="24h Executions"
-            value="1,428"
-            change="+12.5%"
-            changeType="increase"
+            value={totalExecutions24h.toLocaleString()}
             icon={ExecutionIcon}
           />
           <StatCard
             title="Success Rate"
-            value="98.6%"
-            change="+0.4%"
-            changeType="increase"
+            value={totalExecutions24h > 0 ? `${(avgSuccessRate * 100).toFixed(1)}%` : '—'}
             icon={SuccessIcon}
           />
           <StatCard
             title="24h Cost"
-            value="$45.23"
-            change="-8.2%"
-            changeType="decrease"
+            value={`$${totalCost24h.toFixed(2)}`}
             icon={CostIcon}
           />
         </div>
@@ -192,12 +200,10 @@ export function N8nDashboard() {
 interface StatCardProps {
   title: string;
   value: string;
-  change: string;
-  changeType: 'increase' | 'decrease';
   icon: React.ComponentType<{ className?: string }>;
 }
 
-function StatCard({ title, value, change, changeType, icon: Icon }: StatCardProps) {
+function StatCard({ title, value, icon: Icon }: StatCardProps) {
   return (
     <div className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
       <div className="flex items-center">
@@ -206,43 +212,7 @@ function StatCard({ title, value, change, changeType, icon: Icon }: StatCardProp
         </div>
         <div className="ml-5 w-0 flex-1">
           <dt className="truncate text-sm font-medium text-gray-500">{title}</dt>
-          <dd className="flex items-baseline">
-            <div className="text-2xl font-semibold text-gray-900">{value}</div>
-            <div
-              className={`ml-2 flex items-baseline text-sm font-semibold ${
-                changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {changeType === 'increase' ? (
-                <svg
-                  className="h-4 w-4 flex-shrink-0 self-center text-green-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="h-4 w-4 flex-shrink-0 self-center text-red-500"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-              <span className="ml-1">{change}</span>
-            </div>
-          </dd>
+          <dd className="text-2xl font-semibold text-gray-900">{value}</dd>
         </div>
       </div>
     </div>
