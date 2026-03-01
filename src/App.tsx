@@ -29,9 +29,7 @@ function App() {
     <ErrorBoundary>
       <ToastProvider>
         <AuthProvider>
-          <ProjectProvider>
-            <TeamProvider>
-            <BrowserRouter>
+          <BrowserRouter>
               <Routes>
                 {/* Public routes */}
                 <Route path="/sign-in/*" element={<SignIn />} />
@@ -39,14 +37,18 @@ function App() {
                 {/* Legacy login route - redirect to sign-in */}
                 <Route path="/login" element={<Navigate to="/sign-in" replace />} />
 
-                {/* Protected routes */}
+                {/* Protected routes — TeamProvider and ProjectProvider only mount after auth */}
                 <Route
                   path="/"
                   element={
                     <ProtectedRoute>
-                      <Layout>
-                        <Outlet />
-                      </Layout>
+                      <TeamProvider>
+                        <ProjectProvider>
+                          <Layout>
+                            <Outlet />
+                          </Layout>
+                        </ProjectProvider>
+                      </TeamProvider>
                     </ProtectedRoute>
                   }
                 >
@@ -81,8 +83,6 @@ function App() {
                 </Route>
               </Routes>
             </BrowserRouter>
-            </TeamProvider>
-          </ProjectProvider>
         </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>
