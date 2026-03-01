@@ -5,6 +5,8 @@
  * from the backend API (/api/v1/multi-agent endpoints).
  */
 
+import { apiClient } from './client';
+
 export interface ExecutionSummary {
   execution_id: string;
   framework: 'crewai' | 'autogen' | 'langgraph' | 'swarm';
@@ -100,15 +102,11 @@ export async function fetchMultiAgentExecutions(
   if (since) params.append('since', since);
   params.append('limit', limit.toString());
 
-  const response = await fetch(
-    `/api/v1/multi-agent/executions?project_id=${projectId}&${params.toString()}`
+  const response = await apiClient.get<ExecutionSummary[]>(
+    `/multi-agent/executions?project_id=${projectId}&${params.toString()}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch multi-agent executions: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -118,15 +116,11 @@ export async function fetchExecutionDetail(
   projectId: string,
   executionId: string
 ): Promise<ExecutionDetails> {
-  const response = await fetch(
-    `/api/v1/multi-agent/executions/${executionId}?project_id=${projectId}`
+  const response = await apiClient.get<ExecutionDetails>(
+    `/multi-agent/executions/${executionId}?project_id=${projectId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch execution detail: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -136,15 +130,11 @@ export async function fetchAgentGraph(
   projectId: string,
   executionId: string
 ): Promise<AgentGraph> {
-  const response = await fetch(
-    `/api/v1/multi-agent/executions/${executionId}/graph?project_id=${projectId}`
+  const response = await apiClient.get<AgentGraph>(
+    `/multi-agent/executions/${executionId}/graph?project_id=${projectId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch agent graph: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -154,15 +144,11 @@ export async function fetchExecutionTasks(
   projectId: string,
   executionId: string
 ): Promise<TaskInfo[]> {
-  const response = await fetch(
-    `/api/v1/multi-agent/executions/${executionId}/tasks?project_id=${projectId}`
+  const response = await apiClient.get<TaskInfo[]>(
+    `/multi-agent/executions/${executionId}/tasks?project_id=${projectId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch execution tasks: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -179,15 +165,11 @@ export async function fetchAgentPerformance(
   if (since) params.append('since', since);
   params.append('limit', limit.toString());
 
-  const response = await fetch(
-    `/api/v1/multi-agent/analytics/agent-performance?project_id=${projectId}&${params.toString()}`
+  const response = await apiClient.get<AgentPerformance[]>(
+    `/multi-agent/analytics/agent-performance?project_id=${projectId}&${params.toString()}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch agent performance: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**

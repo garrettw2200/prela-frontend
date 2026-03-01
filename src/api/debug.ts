@@ -5,6 +5,8 @@
  * LLM-powered trace debug analysis.
  */
 
+import { apiClient } from './client';
+
 // Type Definitions
 
 export interface TimelineEntry {
@@ -58,17 +60,9 @@ export async function triggerDebugAnalysis(
     params.set('force', 'true');
   }
 
-  const response = await fetch(
-    `/api/v1/debug/traces/${traceId}?${params.toString()}`,
-    { method: 'POST' }
+  const response = await apiClient.post<DebugAnalysis>(
+    `/debug/traces/${traceId}?${params.toString()}`
   );
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('Trace not found');
-    }
-    throw new Error(`Debug analysis failed: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }

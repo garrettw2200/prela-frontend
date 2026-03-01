@@ -5,6 +5,8 @@
  * actionable error analysis from traces.
  */
 
+import { apiClient } from './client';
+
 // Type Definitions
 
 export type ErrorCategory =
@@ -114,18 +116,11 @@ export async function fetchTraceErrorAnalysis(
   projectId: string,
   traceId: string
 ): Promise<TraceErrorAnalysis> {
-  const response = await fetch(
-    `/api/v1/traces/${traceId}/error-analysis?project_id=${projectId}`
+  const response = await apiClient.get<TraceErrorAnalysis>(
+    `/traces/${traceId}/error-analysis?project_id=${projectId}`
   );
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('No errors found in this trace');
-    }
-    throw new Error(`Failed to fetch error analysis: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -142,18 +137,11 @@ export async function fetchErrorExplanation(
   traceId: string,
   spanId: string
 ): Promise<ErrorExplanationFull> {
-  const response = await fetch(
-    `/api/v1/traces/${traceId}/error-explanation?span_id=${spanId}&project_id=${projectId}`
+  const response = await apiClient.get<ErrorExplanationFull>(
+    `/traces/${traceId}/error-explanation?span_id=${spanId}&project_id=${projectId}`
   );
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('Error span not found');
-    }
-    throw new Error(`Failed to fetch error explanation: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -172,16 +160,9 @@ export async function fetchHallucinationAnalysis(
   traceId: string,
   similarityThreshold: number = 0.7
 ): Promise<HallucinationAnalysis[]> {
-  const response = await fetch(
-    `/api/v1/traces/${traceId}/hallucination-analysis?project_id=${projectId}&similarity_threshold=${similarityThreshold}`
+  const response = await apiClient.get<HallucinationAnalysis[]>(
+    `/traces/${traceId}/hallucination-analysis?project_id=${projectId}&similarity_threshold=${similarityThreshold}`
   );
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('No LLM spans with retrieval context found in this trace');
-    }
-    throw new Error(`Failed to fetch hallucination analysis: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
