@@ -99,7 +99,7 @@ export const BillingPage: React.FC = () => {
   const fetchSubscription = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/api/v1/billing/subscription');
+      const response = await apiClient.get('/billing/subscription');
       setSubscription(response.data);
     } catch (err: any) {
       console.error('Failed to fetch subscription:', err);
@@ -123,7 +123,7 @@ export const BillingPage: React.FC = () => {
 
     try {
       setUpgrading(true);
-      const response = await apiClient.post('/api/v1/billing/create-checkout-session', {
+      const response = await apiClient.post('/billing/create-checkout-session', {
         tier,
         team_id: currentTeam?.id,
         success_url: `${window.location.origin}/api-keys?from=checkout`,
@@ -142,7 +142,7 @@ export const BillingPage: React.FC = () => {
 
   const openCustomerPortal = async () => {
     try {
-      const response = await apiClient.post('/api/v1/billing/create-portal-session', {
+      const response = await apiClient.post('/billing/create-portal-session', {
         return_url: `${window.location.origin}/billing`,
       });
 
