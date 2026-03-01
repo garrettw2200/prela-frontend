@@ -7,7 +7,7 @@
  * - Calculate new baselines
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { apiClient } from './client';
 
 // Type Definitions
 
@@ -120,20 +120,11 @@ export async function fetchBaselines(
     params.append('agent_name', agentName);
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/baselines?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<BaselineListResponse>(
+    `/drift/projects/${projectId}/baselines?${params}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch baselines: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -152,21 +143,11 @@ export async function calculateBaselines(
     params.append('agent_name', agentName);
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/baselines/calculate?${params}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.post<{ message: string; baselines_calculated: number }>(
+    `/drift/projects/${projectId}/baselines/calculate?${params}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to calculate baselines: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -190,20 +171,11 @@ export async function checkDrift(
     params.append('since', since);
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/drift/check?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<DriftCheckResponse>(
+    `/drift/projects/${projectId}/drift/check?${params}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to check drift: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 // Utility Functions
@@ -282,20 +254,11 @@ export async function fetchAlerts(
   if (options?.severity) params.set('severity', options.severity);
   if (options?.limit) params.set('limit', options.limit.toString());
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alerts?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<AlertsResponse>(
+    `/drift/projects/${projectId}/alerts?${params}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch alerts: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -305,20 +268,11 @@ export async function fetchAlert(
   projectId: string,
   alertId: string
 ): Promise<StoredAlert> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alerts/${alertId}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<StoredAlert>(
+    `/drift/projects/${projectId}/alerts/${alertId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch alert: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -334,22 +288,12 @@ export async function updateAlertStatus(
     mute_hours?: number;
   }
 ): Promise<{ alert_id: string; status: string; updated: boolean }> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alerts/${alertId}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }
+  const response = await apiClient.patch<{ alert_id: string; status: string; updated: boolean }>(
+    `/drift/projects/${projectId}/alerts/${alertId}`,
+    data
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to update alert: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 // Alert Rules API
@@ -414,22 +358,12 @@ export async function createAlertRule(
   projectId: string,
   data: CreateAlertRuleRequest
 ): Promise<{ rule_id: string; project_id: string; name: string }> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alert-rules`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }
+  const response = await apiClient.post<{ rule_id: string; project_id: string; name: string }>(
+    `/drift/projects/${projectId}/alert-rules`,
+    data
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to create alert rule: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -446,20 +380,11 @@ export async function fetchAlertRules(
   if (options?.enabled !== undefined) params.set('enabled', options.enabled.toString());
   if (options?.limit) params.set('limit', options.limit.toString());
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alert-rules?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<AlertRulesResponse>(
+    `/drift/projects/${projectId}/alert-rules?${params}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch alert rules: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -469,20 +394,11 @@ export async function fetchAlertRule(
   projectId: string,
   ruleId: string
 ): Promise<AlertRule> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alert-rules/${ruleId}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.get<AlertRule>(
+    `/drift/projects/${projectId}/alert-rules/${ruleId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch alert rule: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -493,22 +409,12 @@ export async function updateAlertRule(
   ruleId: string,
   data: Partial<CreateAlertRuleRequest>
 ): Promise<{ rule_id: string; updated: boolean }> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alert-rules/${ruleId}`,
-    {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }
+  const response = await apiClient.patch<{ rule_id: string; updated: boolean }>(
+    `/drift/projects/${projectId}/alert-rules/${ruleId}`,
+    data
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to update alert rule: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
 
 /**
@@ -518,19 +424,9 @@ export async function deleteAlertRule(
   projectId: string,
   ruleId: string
 ): Promise<{ rule_id: string; deleted: boolean }> {
-  const response = await fetch(
-    `${API_BASE_URL}/api/v1/drift/projects/${projectId}/alert-rules/${ruleId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiClient.delete<{ rule_id: string; deleted: boolean }>(
+    `/drift/projects/${projectId}/alert-rules/${ruleId}`
   );
 
-  if (!response.ok) {
-    throw new Error(`Failed to delete alert rule: ${response.statusText}`);
-  }
-
-  return response.json();
+  return response.data;
 }
