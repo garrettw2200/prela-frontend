@@ -102,11 +102,11 @@ export async function fetchMultiAgentExecutions(
   if (since) params.append('since', since);
   params.append('limit', limit.toString());
 
-  const response = await apiClient.get<ExecutionSummary[]>(
+  const response = await apiClient.get<{ executions: ExecutionSummary[] }>(
     `/multi-agent/executions?project_id=${projectId}&${params.toString()}`
   );
 
-  return response.data;
+  return response.data.executions;
 }
 
 /**
@@ -144,11 +144,11 @@ export async function fetchExecutionTasks(
   projectId: string,
   executionId: string
 ): Promise<TaskInfo[]> {
-  const response = await apiClient.get<TaskInfo[]>(
+  const response = await apiClient.get<{ tasks: TaskInfo[] }>(
     `/multi-agent/executions/${executionId}/tasks?project_id=${projectId}`
   );
 
-  return response.data;
+  return response.data.tasks;
 }
 
 /**
@@ -165,11 +165,11 @@ export async function fetchAgentPerformance(
   if (since) params.append('since', since);
   params.append('limit', limit.toString());
 
-  const response = await apiClient.get<AgentPerformance[]>(
+  const response = await apiClient.get<{ agents: AgentPerformance[] }>(
     `/multi-agent/analytics/agent-performance?project_id=${projectId}&${params.toString()}`
   );
 
-  return response.data;
+  return response.data.agents;
 }
 
 /**
