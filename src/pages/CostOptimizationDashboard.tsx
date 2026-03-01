@@ -16,10 +16,11 @@ import {
 import { CacheRecommendationCard } from '../components/cost/CacheRecommendationCard';
 import { CostRecommendationBanner } from '../components/cost/CostRecommendationBanner';
 import { ModelRecommendationCard } from '../components/cost/ModelRecommendationCard';
+import { useProject } from '../contexts/ProjectContext';
 
 export function CostOptimizationDashboard() {
-  // TODO: Get from auth context or router params
-  const projectId = 'default-project';
+  const { currentProject } = useProject();
+  const projectId = currentProject?.project_id || 'default';
   const [timeWindow, setTimeWindow] = useState('30d');
 
   // Fetch model recommendations
