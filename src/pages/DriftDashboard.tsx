@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useProject } from '../contexts/ProjectContext';
-import { UpgradeGate } from '../components/UpgradeGate';
 import {
   fetchAlerts,
   fetchBaselines,
@@ -17,11 +16,7 @@ import { DriftAlertBanner } from '../components/drift';
 import AlertRuleModal from '../components/drift/AlertRuleModal';
 
 export function DriftDashboard() {
-  return (
-    <UpgradeGate requiredTier="pro" featureName="Drift Detection & Alerting">
-      <DriftDashboardContent />
-    </UpgradeGate>
-  );
+  return <DriftDashboardContent />;
 }
 
 function DriftDashboardContent() {
