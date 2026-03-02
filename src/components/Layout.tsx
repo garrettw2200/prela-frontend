@@ -30,6 +30,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/drift', label: 'Drift' },
     { path: '/replay', label: 'Replay' },
     { path: '/eval-generator', label: 'Eval Generator' },
+    { path: '/cost-optimization', label: 'Cost' },
   ];
 
   const accountItems = [

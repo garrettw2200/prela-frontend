@@ -1,4 +1,5 @@
 import { DollarSign, TrendingDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import type { CostInsights as CostInsightsData } from '../../api/insights';
 
@@ -71,6 +72,16 @@ export function CostInsights({ data }: CostInsightsProps) {
             </ResponsiveContainer>
           </div>
         )}
+
+        <Link
+          to="/cost-optimization"
+          className="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        >
+          View recommendations
+          <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
       </div>
     </div>
   );

@@ -43,10 +43,11 @@ export interface SyncResult {
 }
 
 /**
- * List all data sources for the current user.
+ * List all data sources for the current user, optionally scoped to a project.
  */
-export async function listDataSources(): Promise<DataSource[]> {
-  const response = await apiClient.get<DataSource[]>('/data-sources');
+export async function listDataSources(projectId?: string): Promise<DataSource[]> {
+  const params = projectId ? { project_id: projectId } : undefined;
+  const response = await apiClient.get<DataSource[]>('/data-sources', { params });
   return response.data;
 }
 

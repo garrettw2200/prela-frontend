@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProject } from '../contexts/ProjectContext';
 import { fetchTraces, type Trace } from '../api/traces';
 import { format, parseISO } from 'date-fns';
 import ExecutionDetail from './ExecutionDetail';
+
+const PAGE_SIZE = 50;
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms.toFixed(0)}ms`;
@@ -40,76 +42,144 @@ export function TracesPage() {
   const { currentProject } = useProject();
   const projectId = currentProject?.project_id || 'default';
 
+  // Read filters from URL
   const agentFilter = searchParams.get('agent') ?? '';
+  const statusFilter = searchParams.get('status') ?? '';
   const startFilter = searchParams.get('start') ?? '';
   const endFilter = searchParams.get('end') ?? '';
+  const pageParam = parseInt(searchParams.get('page') ?? '1', 10);
+  const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+
+  // Local state for filter inputs (applied on submit)
+  const [agentInput, setAgentInput] = useState(agentFilter);
+  const [statusInput, setStatusInput] = useState(statusFilter);
+  const [startInput, setStartInput] = useState(startFilter);
+  const [endInput, setEndInput] = useState(endFilter);
+
+  const offset = (currentPage - 1) * PAGE_SIZE;
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['traces', projectId, agentFilter, startFilter, endFilter],
+    queryKey: ['traces', projectId, agentFilter, statusFilter, startFilter, endFilter, offset],
     queryFn: () =>
       fetchTraces(projectId, {
         agentName: agentFilter || undefined,
+        status: statusFilter || undefined,
         startTime: startFilter || undefined,
         endTime: endFilter || undefined,
-        limit: 100,
+        limit: PAGE_SIZE,
+        offset,
       }),
     staleTime: 60 * 1000,
   });
 
   const traces = data?.traces ?? [];
+  const hasMore = traces.length === PAGE_SIZE;
   const [selectedTraceId, setSelectedTraceId] = useState<string | null>(null);
+
+  function applyFilters() {
+    const params: Record<string, string> = {};
+    if (agentInput) params.agent = agentInput;
+    if (statusInput) params.status = statusInput;
+    if (startInput) params.start = startInput;
+    if (endInput) params.end = endInput;
+    // Reset to page 1 when filters change
+    setSearchParams(params);
+  }
+
+  function clearFilters() {
+    setAgentInput('');
+    setStatusInput('');
+    setStartInput('');
+    setEndInput('');
+    setSearchParams({});
+  }
+
+  function goToPage(page: number) {
+    const params: Record<string, string> = {};
+    if (agentFilter) params.agent = agentFilter;
+    if (statusFilter) params.status = statusFilter;
+    if (startFilter) params.start = startFilter;
+    if (endFilter) params.end = endFilter;
+    if (page > 1) params.page = page.toString();
+    setSearchParams(params);
+  }
+
+  const hasActiveFilters = agentFilter || statusFilter || startFilter || endFilter;
 
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-            <Link to="/drift" className="hover:text-indigo-600 transition-colors">
-              Drift
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900">Traces</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Traces</h1>
-          {agentFilter && (
-            <p className="mt-1 text-sm text-gray-500">
-              Filtered by agent: <span className="font-medium text-gray-800">{agentFilter}</span>
-            </p>
-          )}
-        </div>
-
-        {/* Clear filter button */}
-        {agentFilter && (
-          <button
-            onClick={() => setSearchParams({})}
-            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm rounded-md text-gray-600 bg-white hover:bg-gray-50"
-          >
-            Clear filter
-          </button>
-        )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Traces</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          View and investigate execution traces across your AI system
+        </p>
       </div>
 
-      {/* Active filters chip */}
-      {(agentFilter || startFilter || endFilter) && (
-        <div className="mb-4 flex flex-wrap gap-2">
-          {agentFilter && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium border border-indigo-200">
-              Agent: {agentFilter}
-            </span>
-          )}
-          {startFilter && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm border border-gray-200">
-              From: {startFilter}
-            </span>
-          )}
-          {endFilter && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-sm border border-gray-200">
-              To: {endFilter}
-            </span>
-          )}
+      {/* Filters */}
+      <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Agent / Service</label>
+            <input
+              type="text"
+              value={agentInput}
+              onChange={(e) => setAgentInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+              placeholder="Filter by agent..."
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+            <select
+              value={statusInput}
+              onChange={(e) => setStatusInput(e.target.value)}
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">All statuses</option>
+              <option value="success">Success</option>
+              <option value="error">Error</option>
+              <option value="failed">Failed</option>
+              <option value="running">Running</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">From</label>
+            <input
+              type="datetime-local"
+              value={startInput}
+              onChange={(e) => setStartInput(e.target.value)}
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">To</label>
+            <input
+              type="datetime-local"
+              value={endInput}
+              onChange={(e) => setEndInput(e.target.value)}
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div className="flex items-end gap-2">
+            <button
+              onClick={applyFilters}
+              className="px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Filter
+            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="px-3 py-1.5 border border-gray-300 text-sm text-gray-600 rounded-md bg-white hover:bg-gray-50 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Loading */}
       {isLoading && (
@@ -135,8 +205,8 @@ export function TracesPage() {
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           <p className="font-medium">No traces found</p>
-          {agentFilter && (
-            <p className="mt-1 text-sm">No traces for agent "{agentFilter}" in the selected time window.</p>
+          {hasActiveFilters && (
+            <p className="mt-1 text-sm">Try adjusting your filters.</p>
           )}
         </div>
       )}
@@ -144,8 +214,11 @@ export function TracesPage() {
       {/* Table */}
       {!isLoading && traces.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200 text-sm text-gray-500">
-            {data?.count} trace{data?.count !== 1 ? 's' : ''}
+          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <span className="text-sm text-gray-500">
+              {currentPage > 1 && `Page ${currentPage} · `}
+              {data?.count} trace{data?.count !== 1 ? 's' : ''}
+            </span>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -187,8 +260,14 @@ export function TracesPage() {
                     // leave as —
                   }
 
+                  const isError = trace.status === 'error' || trace.status === 'failed';
+
                   return (
-                    <tr key={trace.trace_id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={trace.trace_id}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => setSelectedTraceId(trace.trace_id)}
+                    >
                       <td className="px-4 py-3">
                         <span className="font-mono text-xs text-gray-600">
                           {trace.trace_id.slice(0, 16)}…
@@ -215,20 +294,40 @@ export function TracesPage() {
                         {startedLabel}
                       </td>
                       <td className="px-4 py-3">
-                        {(trace.status === 'error' || trace.status === 'failed') && (
-                          <button
-                            onClick={() => setSelectedTraceId(trace.trace_id)}
-                            className="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
-                          >
-                            Debug →
-                          </button>
-                        )}
+                        <span
+                          className={`inline-flex items-center gap-1 text-sm font-medium transition-colors ${
+                            isError
+                              ? 'text-red-600 hover:text-red-800'
+                              : 'text-indigo-600 hover:text-indigo-800'
+                          }`}
+                        >
+                          {isError ? 'Debug' : 'View'} →
+                        </span>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm rounded-md text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-500">Page {currentPage}</span>
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={!hasMore}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm rounded-md text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+            </button>
           </div>
         </div>
       )}
@@ -237,7 +336,9 @@ export function TracesPage() {
         <ExecutionDetail
           executionId={selectedTraceId}
           onClose={() => setSelectedTraceId(null)}
-          autoDebug={true}
+          autoDebug={traces.some(
+            (t) => t.trace_id === selectedTraceId && (t.status === 'error' || t.status === 'failed')
+          )}
         />
       )}
     </div>

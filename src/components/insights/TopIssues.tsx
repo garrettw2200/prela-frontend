@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { TopIssue } from '../../api/insights';
 
 interface TopIssuesProps {
@@ -34,23 +35,33 @@ export function TopIssues({ issues }: TopIssuesProps) {
       ) : (
         <ul className="divide-y divide-gray-200">
           {issues.map((issue) => (
-            <li key={issue.category} className="px-6 py-4 hover:bg-gray-50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      severityStyles[issue.severity] || severityStyles.MEDIUM
-                    }`}
-                  >
-                    {issue.severity}
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {formatCategory(issue.category)}
-                  </span>
+            <li key={issue.category} className="hover:bg-gray-50">
+              <Link
+                to={`/traces?status=error`}
+                className="block px-6 py-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        severityStyles[issue.severity] || severityStyles.MEDIUM
+                      }`}
+                    >
+                      {issue.severity}
+                    </span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {formatCategory(issue.category)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">{issue.count} occurrences</span>
+                    <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-500">{issue.count} occurrences</span>
-              </div>
-              <p className="mt-1 text-sm text-gray-500 pl-16">{issue.recommendation}</p>
+                <p className="mt-1 text-sm text-gray-500 pl-16">{issue.recommendation}</p>
+              </Link>
             </li>
           ))}
         </ul>

@@ -12,6 +12,7 @@ import {
   createTeam,
 } from '../api/teams';
 import { InviteModal } from '../components/teams/InviteModal';
+import { PlanUsageCard } from '../components/PlanUsageCard';
 
 function RoleBadge({ role }: { role: string }) {
   const colors: Record<string, string> = {
@@ -168,6 +169,9 @@ export function TeamSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Plan & Usage */}
+      <PlanUsageCard />
 
       {/* Members */}
       <div className="rounded-lg bg-white shadow">

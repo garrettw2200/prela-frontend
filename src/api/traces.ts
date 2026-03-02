@@ -19,6 +19,7 @@ export interface TracesResponse {
   traces: Trace[];
   count: number;
   limit: number;
+  offset: number;
 }
 
 export async function fetchTraces(
@@ -26,17 +27,21 @@ export async function fetchTraces(
   options?: {
     agentName?: string;
     serviceName?: string;
+    status?: string;
     startTime?: string;
     endTime?: string;
     limit?: number;
+    offset?: number;
   }
 ): Promise<TracesResponse> {
   const params = new URLSearchParams({ project_id: projectId });
   if (options?.agentName) params.set('agent_name', options.agentName);
   if (options?.serviceName) params.set('service_name', options.serviceName);
+  if (options?.status) params.set('status', options.status);
   if (options?.startTime) params.set('start_time', options.startTime);
   if (options?.endTime) params.set('end_time', options.endTime);
   if (options?.limit) params.set('limit', options.limit.toString());
+  if (options?.offset) params.set('offset', options.offset.toString());
 
   const response = await apiClient.get<TracesResponse>(`/traces?${params}`);
   return response.data;

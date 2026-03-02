@@ -31,13 +31,13 @@ export function DataSourcesPage() {
 
   useEffect(() => {
     loadDataSources();
-  }, []);
+  }, [currentProject?.project_id]);
 
   async function loadDataSources() {
     try {
       setLoading(true);
       setError(null);
-      const sources = await listDataSources();
+      const sources = await listDataSources(currentProject?.project_id);
       setDataSources(sources);
     } catch (err) {
       console.error('Failed to load data sources:', err);

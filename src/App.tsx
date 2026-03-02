@@ -10,6 +10,7 @@ import { BillingPage } from './pages/BillingPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
 import { TracesPage } from './pages/TracesPage';
+import { CostOptimizationDashboard } from './pages/CostOptimizationDashboard';
 import { ReplayDashboard } from './pages/ReplayDashboard';
 import { ReplayExecutionDetail } from './pages/ReplayExecutionDetail';
 import { BatchReplayDetail } from './pages/BatchReplayDetail';
@@ -61,6 +62,7 @@ function App() {
                   <Route path="drift" element={<DriftDashboard />} />
                   <Route path="traces" element={<TracesPage />} />
                   <Route path="eval-generator" element={<EvalGeneratorPage />} />
+                  <Route path="cost-optimization" element={<CostOptimizationDashboard />} />
 
                   {/* Account management */}
                   <Route path="api-keys" element={<ApiKeysPage />} />

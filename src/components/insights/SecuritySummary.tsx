@@ -1,4 +1,5 @@
 import { Shield, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { SecuritySummaryData } from '../../api/insights';
 
 interface SecuritySummaryProps {
@@ -88,6 +89,16 @@ export function SecuritySummary({ data }: SecuritySummaryProps) {
               </ul>
             </div>
           )}
+
+          <Link
+            to="/traces"
+            className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700"
+          >
+            View traces
+            <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
         </div>
       )}
     </div>
