@@ -6,7 +6,7 @@
  * explanation, fix suggestions, and execution timeline.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -19,11 +19,35 @@ const PRO_TIERS = ['pro', 'enterprise'];
 interface DebugPanelProps {
   projectId: string;
   traceId: string;
+  autoExpand?: boolean;
 }
 
-export default function DebugPanel({ projectId, traceId }: DebugPanelProps) {
+export default function DebugPanel({ projectId, traceId, autoExpand }: DebugPanelProps) {
   const { user } = useAuth();
   const userTier = user?.tier || 'free';
+
+  const [showTimeline, setShowTimeline] = useState(false);
+  const [analysis, setAnalysis] = useState<DebugAnalysis | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const hasAutoTriggered = useRef(false);
+
+  const mutation = useMutation({
+    mutationFn: (force: boolean) => triggerDebugAnalysis(projectId, traceId, force),
+    onSuccess: (data) => setAnalysis(data),
+  });
+
+  useEffect(() => {
+    if (autoExpand && PRO_TIERS.includes(userTier) && !hasAutoTriggered.current) {
+      hasAutoTriggered.current = true;
+      mutation.mutate(false);
+      setTimeout(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleDebug = (force: boolean = false) => {
+    mutation.mutate(force);
+  };
 
   if (!PRO_TIERS.includes(userTier)) {
     return (
@@ -35,22 +59,11 @@ export default function DebugPanel({ projectId, traceId }: DebugPanelProps) {
       </div>
     );
   }
-  const [showTimeline, setShowTimeline] = useState(false);
-  const [analysis, setAnalysis] = useState<DebugAnalysis | null>(null);
-
-  const mutation = useMutation({
-    mutationFn: (force: boolean) => triggerDebugAnalysis(projectId, traceId, force),
-    onSuccess: (data) => setAnalysis(data),
-  });
-
-  const handleDebug = (force: boolean = false) => {
-    mutation.mutate(force);
-  };
 
   // Not yet triggered — show button
   if (!analysis && !mutation.isPending && !mutation.isError) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div ref={panelRef} className="rounded-lg border border-gray-200 bg-white p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100">

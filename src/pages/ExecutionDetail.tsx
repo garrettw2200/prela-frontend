@@ -16,9 +16,10 @@ import DebugPanel from '../components/debug/DebugPanel';
 interface ExecutionDetailProps {
   executionId: string;
   onClose: () => void;
+  autoDebug?: boolean;
 }
 
-export default function ExecutionDetail({ executionId, onClose }: ExecutionDetailProps) {
+export default function ExecutionDetail({ executionId, onClose, autoDebug }: ExecutionDetailProps) {
   const { user } = useAuth();
   const projectId = user?.projectId || 'default';
 
@@ -242,6 +243,7 @@ export default function ExecutionDetail({ executionId, onClose }: ExecutionDetai
             <DebugPanel
               projectId={projectId}
               traceId={execution.trace_id}
+              autoExpand={autoDebug}
             />
           </div>
 

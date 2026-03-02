@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProject } from '../contexts/ProjectContext';
 import { fetchTraces, type Trace } from '../api/traces';
 import { format, parseISO } from 'date-fns';
+import ExecutionDetail from './ExecutionDetail';
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms.toFixed(0)}ms`;
@@ -55,6 +57,7 @@ export function TracesPage() {
   });
 
   const traces = data?.traces ?? [];
+  const [selectedTraceId, setSelectedTraceId] = useState<string | null>(null);
 
   return (
     <div>
@@ -166,6 +169,9 @@ export function TracesPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Started
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
@@ -208,6 +214,16 @@ export function TracesPage() {
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {startedLabel}
                       </td>
+                      <td className="px-4 py-3">
+                        {(trace.status === 'error' || trace.status === 'failed') && (
+                          <button
+                            onClick={() => setSelectedTraceId(trace.trace_id)}
+                            className="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                          >
+                            Debug →
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -215,6 +231,14 @@ export function TracesPage() {
             </table>
           </div>
         </div>
+      )}
+
+      {selectedTraceId && (
+        <ExecutionDetail
+          executionId={selectedTraceId}
+          onClose={() => setSelectedTraceId(null)}
+          autoDebug={true}
+        />
       )}
     </div>
   );

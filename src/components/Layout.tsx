@@ -26,9 +26,9 @@ export default function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { path: '/insights', label: 'Insights' },
-    { path: '/n8n', label: 'n8n Workflows' },
     { path: '/multi-agent', label: 'Multi-Agent' },
     { path: '/drift', label: 'Drift' },
+    { path: '/data-sources', label: 'Integrations' },
     { path: '/replay', label: 'Replay' },
     { path: '/eval-generator', label: 'Eval Generator' },
   ];
@@ -36,7 +36,7 @@ export default function Layout({ children }: LayoutProps) {
   const accountItems = [
     { path: '/team', label: 'Team' },
     { path: '/api-keys', label: 'API Keys' },
-    { path: '/data-sources', label: 'Integrations' },
+    { path: '/n8n', label: 'n8n Workflows' },
     { path: '/billing', label: 'Billing' },
   ];
 
