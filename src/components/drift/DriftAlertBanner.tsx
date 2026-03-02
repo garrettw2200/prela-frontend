@@ -130,13 +130,13 @@ export default function DriftAlertBanner({
 
             {/* Alert previews */}
             <div className="mt-4 space-y-3">
-              {visibleAlerts.slice(0, 3).map((alert, idx) => {
+              {visibleAlerts.slice(0, 3).map((alert) => {
                 const primaryAnomaly = alert.anomalies[0];
                 const additionalCount = alert.anomalies.length - 1;
 
                 return (
                   <div
-                    key={idx}
+                    key={alert.agent_name}
                     className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm"
                   >
                     <div className="flex-1">

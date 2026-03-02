@@ -148,14 +148,22 @@ export function MultiAgentDashboard() {
         </button>
       </div>
 
-      {/* Drift Alerts */}
-      {!driftLoading && driftData && driftData.alerts.length > 0 && (
-        <DriftAlertBanner
-          alerts={driftData.alerts as unknown as DriftAlert[]}
-          onDismiss={handleDismissAlert}
-          onMarkAsExpected={handleMarkAsExpected}
-        />
-      )}
+      {/* Drift Alerts — deduplicate by agent_name before display */}
+      {!driftLoading && driftData && driftData.alerts.length > 0 && (() => {
+        const seen = new Set<string>();
+        const uniqueAlerts = (driftData.alerts as unknown as DriftAlert[]).filter((a) => {
+          if (seen.has(a.agent_name)) return false;
+          seen.add(a.agent_name);
+          return true;
+        });
+        return uniqueAlerts.length > 0 ? (
+          <DriftAlertBanner
+            alerts={uniqueAlerts}
+            onDismiss={handleDismissAlert}
+            onMarkAsExpected={handleMarkAsExpected}
+          />
+        ) : null;
+      })()}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
