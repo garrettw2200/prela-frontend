@@ -7,6 +7,7 @@ import { TopIssues } from '../components/insights/TopIssues';
 import { CostInsights } from '../components/insights/CostInsights';
 import { SecuritySummary } from '../components/insights/SecuritySummary';
 import { DriftAlerts } from '../components/insights/DriftAlerts';
+import { InsightsOnboarding } from '../components/onboarding/InsightsOnboarding';
 
 const TIME_WINDOWS = [
   { value: '7d', label: '7 days' },
@@ -73,14 +74,9 @@ export function InsightsDashboard() {
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty state / Onboarding */}
       {data && data.trace_count === 0 && (
-        <div className="rounded-lg bg-white p-12 text-center shadow">
-          <h3 className="text-lg font-medium text-gray-900">No traces yet</h3>
-          <p className="mt-2 text-sm text-gray-500">
-            Start sending traces via the SDK, OTLP, or Langfuse import to see insights here.
-          </p>
-        </div>
+        <InsightsOnboarding traceCount={data.trace_count} />
       )}
 
       {/* Dashboard */}
