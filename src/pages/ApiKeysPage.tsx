@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { listApiKeys, createApiKey, revokeApiKey, ApiKey, CreateApiKeyResponse } from '../api/apiKeys';
+import { useTeam } from '../contexts/TeamContext';
 
 export function ApiKeysPage() {
+  const { currentTeam } = useTeam();
+  const isTeamAdmin = currentTeam?.role === 'admin' || currentTeam?.role === 'owner';
+
+  const [viewMode, setViewMode] = useState<'personal' | 'team'>('personal');
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -16,7 +21,7 @@ export function ApiKeysPage() {
 
   useEffect(() => {
     loadApiKeys();
-  }, []);
+  }, [viewMode, currentTeam?.id]);
 
   useEffect(() => {
     // If coming from checkout and no keys exist, auto-open create form
@@ -29,7 +34,8 @@ export function ApiKeysPage() {
     try {
       setLoading(true);
       setError(null);
-      const keys = await listApiKeys();
+      const teamIdToFetch = viewMode === 'team' && currentTeam ? currentTeam.id : undefined;
+      const keys = await listApiKeys(teamIdToFetch);
       setApiKeys(keys);
     } catch (err) {
       console.error('Failed to load API keys:', err);
@@ -48,7 +54,8 @@ export function ApiKeysPage() {
     try {
       setCreating(true);
       setError(null);
-      const response = await createApiKey({ name: newKeyName.trim() });
+      const teamId = viewMode === 'team' ? currentTeam?.id : undefined;
+      const response = await createApiKey({ name: newKeyName.trim(), team_id: teamId });
       setNewKeyResponse(response);
       setNewKeyName('');
       setShowCreateForm(false);
@@ -68,7 +75,8 @@ export function ApiKeysPage() {
 
     try {
       setError(null);
-      await revokeApiKey(keyId);
+      const teamId = viewMode === 'team' ? currentTeam?.id : undefined;
+      await revokeApiKey(keyId, teamId);
       await loadApiKeys();
 
       // Clear the new key response if we're revoking the key we just created
@@ -83,7 +91,6 @@ export function ApiKeysPage() {
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
-    // Could add a toast notification here
   }
 
   function formatDate(dateString: string | null): string {
@@ -91,6 +98,8 @@ export function ApiKeysPage() {
     const date = new Date(dateString);
     return date.toLocaleString();
   }
+
+  const canCreateKeys = viewMode === 'personal' || isTeamAdmin;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -180,62 +189,100 @@ export function ApiKeysPage() {
         </div>
       )}
 
+      {/* Personal / Team tabs */}
+      <div className="mb-6 flex gap-0 border-b border-gray-200">
+        <button
+          onClick={() => { setViewMode('personal'); setShowCreateForm(false); setError(null); }}
+          className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            viewMode === 'personal'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Personal Keys
+        </button>
+        {currentTeam && (
+          <button
+            onClick={() => { setViewMode('team'); setShowCreateForm(false); setError(null); }}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              viewMode === 'team'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {currentTeam.name} Keys
+          </button>
+        )}
+      </div>
+
       {/* Create key button */}
       <div className="mb-6">
-        {!showCreateForm ? (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            Create New API Key
-          </button>
-        ) : (
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Create New API Key</h3>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="keyName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Key Name
-                </label>
-                <input
-                  type="text"
-                  id="keyName"
-                  value={newKeyName}
-                  onChange={(e) => setNewKeyName(e.target.value)}
-                  placeholder="e.g., Production Server, Local Development"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  disabled={creating}
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleCreateKey}
-                  disabled={creating || !newKeyName.trim()}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  {creating ? 'Creating...' : 'Create Key'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowCreateForm(false);
-                    setNewKeyName('');
-                    setError(null);
-                  }}
-                  disabled={creating}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
+        {canCreateKeys ? (
+          !showCreateForm ? (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Create New API Key
+            </button>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Create New {viewMode === 'team' ? `${currentTeam?.name} Team` : 'Personal'} API Key
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="keyName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Key Name
+                  </label>
+                  <input
+                    type="text"
+                    id="keyName"
+                    value={newKeyName}
+                    onChange={(e) => setNewKeyName(e.target.value)}
+                    placeholder="e.g., Production Server, Local Development"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    disabled={creating}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCreateKey}
+                    disabled={creating || !newKeyName.trim()}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    {creating ? 'Creating...' : 'Create Key'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      setNewKeyName('');
+                      setError(null);
+                    }}
+                    disabled={creating}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )
+        ) : (
+          viewMode === 'team' && (
+            <p className="text-sm text-gray-500">
+              Contact a team admin to create or revoke team API keys.
+            </p>
+          )
         )}
       </div>
 
       {/* API keys list */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-lg font-medium text-gray-900">Your API Keys</h2>
+          <h2 className="text-lg font-medium text-gray-900">
+            {viewMode === 'team' ? `${currentTeam?.name} API Keys` : 'Your API Keys'}
+          </h2>
         </div>
 
         {loading ? (
@@ -260,7 +307,11 @@ export function ApiKeysPage() {
             </svg>
             <h3 className="mt-2 text-sm font-medium text-gray-900">No API keys</h3>
             <p className="mt-1 text-sm text-gray-500">
-              Get started by creating a new API key.
+              {viewMode === 'team'
+                ? canCreateKeys
+                  ? 'Create a team key that all team members can use.'
+                  : 'No team keys have been created yet. Contact a team admin.'
+                : 'Get started by creating a new API key.'}
             </p>
           </div>
         ) : (
@@ -280,12 +331,14 @@ export function ApiKeysPage() {
                       <span>Last used: {formatDate(key.last_used_at)}</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleRevokeKey(key.id, key.name)}
-                    className="ml-4 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                  >
-                    Revoke
-                  </button>
+                  {canCreateKeys && (
+                    <button
+                      onClick={() => handleRevokeKey(key.id, key.name)}
+                      className="ml-4 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                    >
+                      Revoke
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -297,18 +350,27 @@ export function ApiKeysPage() {
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-medium text-blue-900 mb-2">Using Your API Key</h3>
         <p className="text-sm text-blue-800 mb-4">
-          Set your API key as an environment variable in your application:
+          Set your API key as an environment variable, then initialize Prela in your code:
         </p>
-        <code className="block bg-gray-900 text-green-400 px-4 py-3 rounded font-mono text-sm">
-          export PRELA_API_KEY="your_api_key_here"
-        </code>
+        <pre className="bg-gray-900 text-green-400 px-4 py-3 rounded font-mono text-sm whitespace-pre">
+{`export PRELA_API_KEY="your_api_key_here"
+
+pip install prela
+
+import prela
+prela.init(service_name="my-agent")`}
+        </pre>
         <p className="mt-4 text-sm text-blue-800">
-          Then initialize Prela in your code:
+          Traces will appear in your dashboard automatically.{' '}
+          <a
+            href="https://docs.prela.dev/getting-started/quickstart"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline hover:text-blue-900"
+          >
+            View full docs →
+          </a>
         </p>
-        <code className="block bg-gray-900 text-green-400 px-4 py-3 rounded font-mono text-sm mt-2">
-          import prela{'\n'}
-          prela.init()
-        </code>
       </div>
     </div>
   );

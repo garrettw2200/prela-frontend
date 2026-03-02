@@ -31,15 +31,17 @@ export function InsightsOnboarding({ traceCount }: InsightsOnboardingProps) {
     prevTraceCountRef.current = traceCount;
   }, [traceCount, showToast]);
 
-  const apiKeyValue = hasApiKey ? apiKeys![0].key_prefix + '...' : 'YOUR_KEY';
+  const apiKeyValue = hasApiKey ? apiKeys![0].key_prefix + '...' : 'your_api_key_here';
 
-  const codeSnippet = `pip install prela
+  const codeSnippet = `export PRELA_API_KEY="${apiKeyValue}"
+
+pip install prela
 
 import prela
-prela.init("${apiKeyValue}")`;
+prela.init(service_name="my-agent")`;
 
   function handleCopy() {
-    const installSnippet = `pip install prela\n\nimport prela\nprela.init("YOUR_KEY")`;
+    const installSnippet = `export PRELA_API_KEY="your_api_key_here"\n\npip install prela\n\nimport prela\nprela.init(service_name="my-agent")`;
     navigator.clipboard.writeText(installSnippet);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
