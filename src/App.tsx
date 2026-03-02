@@ -8,6 +8,7 @@ import { EvalGeneratorPage } from './pages/EvalGeneratorPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
+import { IntegrationsPage } from './pages/IntegrationsPage';
 import { TracesPage } from './pages/TracesPage';
 import { ReplayDashboard } from './pages/ReplayDashboard';
 import { ReplayExecutionDetail } from './pages/ReplayExecutionDetail';
@@ -63,6 +64,7 @@ function App() {
 
                   {/* Account management */}
                   <Route path="api-keys" element={<ApiKeysPage />} />
+                  <Route path="integrations" element={<IntegrationsPage />} />
                   <Route path="data-sources" element={<DataSourcesPage />} />
                   <Route path="billing" element={<BillingPage />} />
 

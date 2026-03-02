@@ -28,7 +28,6 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/insights', label: 'Insights' },
     { path: '/multi-agent', label: 'Multi-Agent' },
     { path: '/drift', label: 'Drift' },
-    { path: '/data-sources', label: 'Integrations' },
     { path: '/replay', label: 'Replay' },
     { path: '/eval-generator', label: 'Eval Generator' },
   ];
@@ -36,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
   const accountItems = [
     { path: '/team', label: 'Team' },
     { path: '/api-keys', label: 'API Keys' },
-    { path: '/n8n', label: 'n8n Workflows' },
+    { path: '/integrations', label: 'Integrations' },
     { path: '/billing', label: 'Billing' },
   ];
 
