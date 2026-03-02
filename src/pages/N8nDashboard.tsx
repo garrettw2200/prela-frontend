@@ -53,8 +53,6 @@ export function N8nDashboard() {
     projectId: activeProjectId,
     eventType: 'trace.created',
     onEvent: (data) => {
-      console.log('[N8nDashboard] New trace received:', data);
-
       // Show real-time indicator
       setRealtimeActive(true);
       setTimeout(() => setRealtimeActive(false), 2000);

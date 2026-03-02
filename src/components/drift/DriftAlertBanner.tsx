@@ -228,8 +228,7 @@ export default function DriftAlertBanner({
                 <button
                   className="text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
                   onClick={() => {
-                    // Could open a modal showing all alerts
-                    console.log('Show all alerts');
+                    // TODO: open a modal showing all alerts
                   }}
                 >
                   Show {visibleAlerts.length - 3} more alerts

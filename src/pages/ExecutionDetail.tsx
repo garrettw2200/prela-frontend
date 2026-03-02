@@ -151,9 +151,8 @@ export default function ExecutionDetail({ executionId, onClose, autoDebug }: Exe
                     traceId={errorAnalysis.trace_id}
                     projectId={projectId}
                     analysis={error.analysis}
-                    onReplayTriggered={(executionId) => {
-                      console.log('Replay started:', executionId);
-                      // TODO: Add toast notification when Toast component is available
+                    onReplayTriggered={(_executionId) => {
+                      // Toast notification can be added here when a toast library is integrated
                     }}
                   />
                 ))}

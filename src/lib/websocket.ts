@@ -41,12 +41,10 @@ class WebSocketClient {
 
     // Connect to WebSocket endpoint
     const wsUrl = `${this.getWebSocketUrl()}/ws/${projectId}`;
-    console.log(`[WebSocket] Connecting to ${wsUrl}`);
 
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
-      console.log(`[WebSocket] Connected to project ${projectId}`);
       this.reconnectAttempts = 0;
       this.reconnectDelay = 1000;
     };
@@ -65,14 +63,9 @@ class WebSocketClient {
     };
 
     this.ws.onclose = () => {
-      console.log(`[WebSocket] Disconnected from project ${projectId}`);
-
       // Attempt reconnection if not intentional
       if (!this.isIntentionalClose && this.reconnectAttempts < this.maxReconnectAttempts) {
         this.reconnectAttempts++;
-        console.log(
-          `[WebSocket] Reconnecting in ${this.reconnectDelay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
-        );
 
         setTimeout(() => {
           if (this.projectId) {
@@ -95,7 +88,6 @@ class WebSocketClient {
       this.ws.close();
       this.ws = null;
       this.projectId = null;
-      console.log('[WebSocket] Disconnected');
     }
   }
 
@@ -174,8 +166,6 @@ class WebSocketClient {
   send(message: any): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
-    } else {
-      console.warn('[WebSocket] Cannot send message, not connected');
     }
   }
 
