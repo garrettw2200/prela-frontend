@@ -9,6 +9,13 @@ import {
 } from '../../api/drift';
 import { formatDistanceToNow } from 'date-fns';
 
+function safeFormatDistance(dateStr: string | undefined | null): string {
+  if (!dateStr) return 'unknown time';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return 'unknown time';
+  return formatDistanceToNow(d);
+}
+
 interface DriftDetailModalProps {
   alert: DriftAlert;
   onClose: () => void;
@@ -87,7 +94,7 @@ export default function DriftDetailModal({
                     Drift Alert: Agent Behavior Changed
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    Detected {formatDistanceToNow(new Date(alert.detected_at))} ago
+                    Detected {safeFormatDistance(alert.detected_at)} ago
                   </p>
                 </div>
               </div>
@@ -134,8 +141,8 @@ export default function DriftDetailModal({
                     Baseline Period
                   </div>
                   <div className="mt-1 text-sm text-gray-900">
-                    {formatDistanceToNow(new Date(alert.baseline.window_start))} ago
-                    - {formatDistanceToNow(new Date(alert.baseline.window_end))} ago
+                    {safeFormatDistance(alert.baseline.window_start)} ago
+                    – {safeFormatDistance(alert.baseline.window_end)} ago
                   </div>
                 </div>
                 <div>
