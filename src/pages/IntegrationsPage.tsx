@@ -84,11 +84,7 @@ export function IntegrationsPage() {
         ))}
       </div>
 
-      <div className="mt-8 rounded-lg border border-dashed border-gray-300 p-6 text-center">
-        <p className="text-sm text-gray-500">
-          More integrations coming soon — OpenAI, LangChain, LlamaIndex, Vertex AI, and more.
-        </p>
-      </div>
+
     </div>
   );
 }
