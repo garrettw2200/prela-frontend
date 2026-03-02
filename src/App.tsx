@@ -8,6 +8,7 @@ import { EvalGeneratorPage } from './pages/EvalGeneratorPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
 import { BillingPage } from './pages/BillingPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
+import { TracesPage } from './pages/TracesPage';
 import { ReplayDashboard } from './pages/ReplayDashboard';
 import { ReplayExecutionDetail } from './pages/ReplayExecutionDetail';
 import { BatchReplayDetail } from './pages/BatchReplayDetail';
@@ -57,6 +58,7 @@ function App() {
                   <Route path="n8n" element={<N8nDashboard />} />
                   <Route path="multi-agent" element={<MultiAgentDashboard />} />
                   <Route path="drift" element={<DriftDashboard />} />
+                  <Route path="traces" element={<TracesPage />} />
                   <Route path="eval-generator" element={<EvalGeneratorPage />} />
 
                   {/* Account management */}

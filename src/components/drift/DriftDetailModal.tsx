@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useProject } from '../../contexts/ProjectContext';
 import {
   DriftAlert,
   Anomaly,
@@ -6,6 +9,7 @@ import {
   getSeverityIcon,
   formatMetricValue,
   formatChangePercent,
+  calculateBaselines,
 } from '../../api/drift';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -16,24 +20,51 @@ function safeFormatDistance(dateStr: string | undefined | null): string {
   return formatDistanceToNow(d);
 }
 
+const WINDOW_OPTIONS = [
+  { value: 7, label: '7 days' },
+  { value: 14, label: '14 days' },
+  { value: 30, label: '30 days' },
+];
+
 interface DriftDetailModalProps {
   alert: DriftAlert;
   onClose: () => void;
   onMarkAsExpected: () => void;
-  onViewTraces?: () => void;
-  onAdjustBaseline?: () => void;
 }
 
 export default function DriftDetailModal({
   alert,
   onClose,
   onMarkAsExpected,
-  onViewTraces,
-  onAdjustBaseline,
 }: DriftDetailModalProps) {
+  const navigate = useNavigate();
+  const { currentProject } = useProject();
+  const projectId = currentProject?.project_id || 'default';
+  const queryClient = useQueryClient();
+
   const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(
     alert.anomalies[0] || null
   );
+  const [showBaselinePanel, setShowBaselinePanel] = useState(false);
+  const [windowDays, setWindowDays] = useState(7);
+  const [recalcSuccess, setRecalcSuccess] = useState(false);
+
+  const recalcMutation = useMutation({
+    mutationFn: () => calculateBaselines(projectId, alert.agent_name, windowDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['drift-baselines', projectId] });
+      setRecalcSuccess(true);
+      setTimeout(() => setRecalcSuccess(false), 3000);
+    },
+  });
+
+  const handleViewTraces = () => {
+    const params = new URLSearchParams({ agent: alert.agent_name });
+    if (alert.baseline?.window_start) params.set('start', alert.baseline.window_start);
+    if (alert.baseline?.window_end) params.set('end', alert.baseline.window_end);
+    onClose();
+    navigate(`/traces?${params}`);
+  };
 
   // Get severity info
   const highestSeverity = alert.anomalies.reduce((max: 'low' | 'medium' | 'high' | 'critical', anomaly) => {
@@ -315,13 +346,60 @@ export default function DriftDetailModal({
                 </div>
               </div>
             )}
+
+            {/* Adjust Baseline inline panel */}
+            {showBaselinePanel && (
+              <div className="bg-white rounded-lg shadow-sm p-4 border border-indigo-100">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                  Recalculate Baseline — {alert.agent_name}
+                </h4>
+                <p className="text-sm text-gray-500 mb-4">
+                  Choose a new time window to recalculate the baseline. The drift
+                  detection will use this updated baseline on the next check.
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex rounded-lg border border-gray-300 bg-white">
+                    {WINDOW_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setWindowDays(opt.value)}
+                        className={`px-3 py-1.5 text-sm font-medium transition-colors first:rounded-l-lg last:rounded-r-lg ${
+                          windowDays === opt.value
+                            ? 'bg-indigo-600 text-white'
+                            : 'text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => recalcMutation.mutate()}
+                    disabled={recalcMutation.isPending}
+                    className="inline-flex items-center px-4 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {recalcMutation.isPending ? 'Recalculating…' : 'Recalculate'}
+                  </button>
+                  {recalcSuccess && (
+                    <span className="text-sm text-green-600 font-medium">
+                      ✓ Baseline updated
+                    </span>
+                  )}
+                  {recalcMutation.isError && (
+                    <span className="text-sm text-red-600">
+                      Failed — try again
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
             <div className="flex gap-2">
               <button
-                onClick={onViewTraces}
+                onClick={handleViewTraces}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <svg
@@ -346,8 +424,12 @@ export default function DriftDetailModal({
                 View Traces
               </button>
               <button
-                onClick={onAdjustBaseline}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                onClick={() => setShowBaselinePanel((v) => !v)}
+                className={`inline-flex items-center px-4 py-2 border shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+                  showBaselinePanel
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
               >
                 Adjust Baseline
               </button>
