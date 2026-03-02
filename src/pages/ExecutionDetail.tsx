@@ -210,8 +210,8 @@ export default function ExecutionDetail({ executionId, onClose }: ExecutionDetai
             </div>
           )}
 
-          {/* Agent Graph Section */}
-          {graph && !graphLoading && (
+          {/* Agent Graph Section — only show when there are edges to visualize */}
+          {graph && !graphLoading && graph.edges.length > 0 && (
             <div className="mb-6">
               <h3 className="text-lg font-medium text-gray-900 mb-3">Agent Communication Graph</h3>
               <div className="bg-gray-50 p-4 rounded-lg" style={{ height: '400px' }}>
