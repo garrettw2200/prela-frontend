@@ -148,14 +148,40 @@ export function MultiAgentDashboard() {
         </button>
       </div>
 
-      {/* Drift Alerts — deduplicate by agent_name before display */}
+      {/* Drift Alerts — convert StoredAlert → DriftAlert, deduplicate by agent_name */}
       {!driftLoading && driftData && driftData.alerts.length > 0 && (() => {
         const seen = new Set<string>();
-        const uniqueAlerts = (driftData.alerts as unknown as DriftAlert[]).filter((a) => {
-          if (seen.has(a.agent_name)) return false;
-          seen.add(a.agent_name);
-          return true;
-        });
+        const uniqueAlerts = (driftData.alerts as unknown as StoredAlert[])
+          .map((a): DriftAlert => ({
+            agent_name: a.agent_name,
+            service_name: a.service_name,
+            anomalies: a.anomalies,
+            root_causes: a.root_causes,
+            baseline: {
+              baseline_id: a.baseline_id,
+              agent_name: a.agent_name,
+              service_name: a.service_name,
+              window_start: '',
+              window_end: '',
+              sample_size: 0,
+              duration_mean: 0,
+              duration_stddev: 0,
+              duration_p50: 0,
+              duration_p95: 0,
+              token_usage_mean: 0,
+              token_usage_stddev: 0,
+              success_rate: 0,
+              error_count: 0,
+              cost_mean: 0,
+              cost_total: 0,
+            },
+            detected_at: a.detected_at,
+          }))
+          .filter((a) => {
+            if (seen.has(a.agent_name)) return false;
+            seen.add(a.agent_name);
+            return true;
+          });
         return uniqueAlerts.length > 0 ? (
           <DriftAlertBanner
             alerts={uniqueAlerts}
