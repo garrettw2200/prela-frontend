@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useProject } from '../contexts/ProjectContext';
 import {
   fetchMultiAgentExecutions,
   fetchAgentPerformance,
@@ -16,7 +18,9 @@ import AlertRuleModal from '../components/drift/AlertRuleModal';
 
 export function MultiAgentDashboard() {
   const { user } = useAuth();
-  const projectId = user?.projectId || 'default';
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+  const { currentProject } = useProject();
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
 
   const [selectedFramework, setSelectedFramework] = useState<
     'crewai' | 'autogen' | 'langgraph' | 'swarm' | undefined

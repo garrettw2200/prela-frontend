@@ -26,6 +26,8 @@ import { ProjectProvider } from './contexts/ProjectContext';
 import { TeamProvider } from './contexts/TeamContext';
 import { ToastProvider } from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ProjectRouteSync } from './components/ProjectRouteSync';
+import { ProjectRedirect } from './components/ProjectRedirect';
 
 function App() {
   return (
@@ -55,16 +57,35 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
-                  <Route index element={<Navigate to="/insights" replace />} />
-                  <Route path="insights" element={<InsightsDashboard />} />
-                  <Route path="n8n" element={<N8nDashboard />} />
-                  <Route path="multi-agent" element={<MultiAgentDashboard />} />
-                  <Route path="drift" element={<DriftDashboard />} />
-                  <Route path="traces" element={<TracesPage />} />
-                  <Route path="eval-generator" element={<EvalGeneratorPage />} />
-                  <Route path="cost-optimization" element={<CostOptimizationDashboard />} />
+                  {/* Root redirect — pick up active project from context */}
+                  <Route index element={<ProjectRedirect to="insights" />} />
 
-                  {/* Account management */}
+                  {/* Project-scoped dashboard routes */}
+                  <Route path="projects/:projectId" element={<ProjectRouteSync />}>
+                    <Route index element={<Navigate to="insights" replace />} />
+                    <Route path="insights" element={<InsightsDashboard />} />
+                    <Route path="n8n" element={<N8nDashboard />} />
+                    <Route path="multi-agent" element={<MultiAgentDashboard />} />
+                    <Route path="drift" element={<DriftDashboard />} />
+                    <Route path="traces" element={<TracesPage />} />
+                    <Route path="eval-generator" element={<EvalGeneratorPage />} />
+                    <Route path="cost-optimization" element={<CostOptimizationDashboard />} />
+                    <Route path="replay" element={<ReplayDashboard />} />
+                    <Route path="replay/batch/:batchId" element={<BatchReplayDetail />} />
+                    <Route path="replay/:executionId" element={<ReplayExecutionDetail />} />
+                  </Route>
+
+                  {/* Legacy flat routes — redirect to project-scoped equivalents */}
+                  <Route path="insights" element={<ProjectRedirect to="insights" />} />
+                  <Route path="n8n" element={<ProjectRedirect to="n8n" />} />
+                  <Route path="multi-agent" element={<ProjectRedirect to="multi-agent" />} />
+                  <Route path="drift" element={<ProjectRedirect to="drift" />} />
+                  <Route path="traces" element={<ProjectRedirect to="traces" />} />
+                  <Route path="eval-generator" element={<ProjectRedirect to="eval-generator" />} />
+                  <Route path="cost-optimization" element={<ProjectRedirect to="cost-optimization" />} />
+                  <Route path="replay" element={<ProjectRedirect to="replay" />} />
+
+                  {/* Account management — team-scoped, stay flat */}
                   <Route path="api-keys" element={<ApiKeysPage />} />
                   <Route path="integrations" element={<IntegrationsPage />} />
                   <Route path="data-sources" element={<DataSourcesPage />} />
@@ -72,14 +93,6 @@ function App() {
 
                   {/* Project management */}
                   <Route path="projects/manage" element={<ProjectManagement />} />
-
-                  {/* Project-specific routes */}
-                  <Route path="projects/:projectId/n8n" element={<N8nDashboard />} />
-
-                  {/* Replay */}
-                  <Route path="replay" element={<ReplayDashboard />} />
-                  <Route path="replay/batch/:batchId" element={<BatchReplayDetail />} />
-                  <Route path="replay/:executionId" element={<ReplayExecutionDetail />} />
 
                   {/* Team */}
                   <Route path="team" element={<TeamSettingsPage />} />

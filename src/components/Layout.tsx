@@ -1,6 +1,7 @@
 import { ReactNode, useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useProject } from '../contexts/ProjectContext';
 import { ProjectSelector } from './projects/ProjectSelector';
 import { TeamSelector } from './teams/TeamSelector';
 
@@ -11,6 +12,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { currentProject } = useProject();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -24,13 +26,15 @@ export default function Layout({ children }: LayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const projectBase = currentProject ? `/projects/${currentProject.project_id}` : '';
+
   const navItems = [
-    { path: '/insights', label: 'Insights' },
-    { path: '/multi-agent', label: 'Multi-Agent' },
-    { path: '/drift', label: 'Drift' },
-    { path: '/replay', label: 'Replay' },
-    { path: '/eval-generator', label: 'Eval Generator' },
-    { path: '/cost-optimization', label: 'Cost' },
+    { path: `${projectBase}/insights`, label: 'Insights' },
+    { path: `${projectBase}/multi-agent`, label: 'Multi-Agent' },
+    { path: `${projectBase}/drift`, label: 'Drift' },
+    { path: `${projectBase}/replay`, label: 'Replay' },
+    { path: `${projectBase}/eval-generator`, label: 'Eval Generator' },
+    { path: `${projectBase}/cost-optimization`, label: 'Cost' },
   ];
 
   const accountItems = [

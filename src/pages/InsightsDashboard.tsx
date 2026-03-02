@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
 import { fetchInsightsSummary } from '../api/insights';
 import { HealthScore } from '../components/insights/HealthScore';
@@ -16,8 +17,9 @@ const TIME_WINDOWS = [
 ] as const;
 
 export function InsightsDashboard() {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
   const [timeWindow, setTimeWindow] = useState('7d');
 
   const { data, isLoading, error } = useQuery({

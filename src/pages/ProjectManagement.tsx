@@ -129,7 +129,7 @@ export function ProjectManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
-                      onClick={() => navigate(`/projects/${project.project_id}/n8n`)}
+                      onClick={() => navigate(`/projects/${project.project_id}/insights`)}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"
                     >
                       View
@@ -155,7 +155,7 @@ export function ProjectManagement() {
           onClose={() => setIsCreateModalOpen(false)}
           onSuccess={(project) => {
             setIsCreateModalOpen(false);
-            navigate(`/projects/${project.project_id}/n8n`);
+            navigate(`/projects/${project.project_id}/insights`);
           }}
         />
       )}

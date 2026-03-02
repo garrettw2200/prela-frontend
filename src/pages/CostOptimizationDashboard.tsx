@@ -16,11 +16,13 @@ import {
 import { CacheRecommendationCard } from '../components/cost/CacheRecommendationCard';
 import { CostRecommendationBanner } from '../components/cost/CostRecommendationBanner';
 import { ModelRecommendationCard } from '../components/cost/ModelRecommendationCard';
+import { useParams } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
 
 export function CostOptimizationDashboard() {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
   const [timeWindow, setTimeWindow] = useState('30d');
 
   // Fetch model recommendations

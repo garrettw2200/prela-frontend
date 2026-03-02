@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProject } from '../contexts/ProjectContext';
 import { fetchTraces, type Trace } from '../api/traces';
@@ -39,8 +39,9 @@ function StatusBadge({ status }: { status: string }) {
 
 export function TracesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
 
   // Read filters from URL
   const agentFilter = searchParams.get('agent') ?? '';

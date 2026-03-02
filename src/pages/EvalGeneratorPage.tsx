@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
 import {
   triggerEvalGeneration,
@@ -16,8 +17,9 @@ export function EvalGeneratorPage() {
 }
 
 function EvalGeneratorContent() {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
   const queryClient = useQueryClient();
 
   // Form state

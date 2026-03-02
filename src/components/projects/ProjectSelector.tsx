@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useProject } from '../../contexts/ProjectContext';
 import { useQuery } from '@tanstack/react-query';
 import { fetchWebhookStatus } from '../../api/projects';
@@ -9,6 +9,8 @@ export function ProjectSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Fetch webhook status for current project
   const { data: webhookStatus } = useQuery({
@@ -40,6 +42,12 @@ export function ProjectSelector() {
     selectProject(projectId);
     setIsOpen(false);
     setSearchQuery('');
+
+    // Navigate to the same page under the new project
+    // Match /projects/:currentId/<page> and swap in the new projectId
+    const match = location.pathname.match(/^\/projects\/[^/]+\/(.+)$/);
+    const page = match ? match[1] : 'insights';
+    navigate(`/projects/${projectId}/${page}`);
   };
 
   // Status indicator emoji

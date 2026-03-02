@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
 import {
   fetchAlerts,
@@ -11,6 +12,7 @@ import {
   deleteAlertRule,
   type StoredAlert,
   type AlertRule,
+  type BaselineMetrics,
 } from '../api/drift';
 import { DriftAlertBanner } from '../components/drift';
 import AlertRuleModal from '../components/drift/AlertRuleModal';
@@ -20,8 +22,9 @@ export function DriftDashboard() {
 }
 
 function DriftDashboardContent() {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
   const queryClient = useQueryClient();
 
   const [showRuleModal, setShowRuleModal] = useState(false);
@@ -81,6 +84,11 @@ function DriftDashboardContent() {
     },
   });
 
+  // Build a lookup map so we can join baseline metrics into each alert
+  const baselineMap = new Map(
+    (baselinesData?.baselines ?? []).map((b: BaselineMetrics) => [b.baseline_id, b])
+  );
+
   // Convert stored alerts to DriftAlert format for the banner component
   const bannerAlerts =
     alertsData?.alerts.map((a: StoredAlert) => ({
@@ -88,7 +96,7 @@ function DriftDashboardContent() {
       service_name: a.service_name,
       anomalies: a.anomalies,
       root_causes: a.root_causes,
-      baseline: {
+      baseline: baselineMap.get(a.baseline_id) ?? {
         baseline_id: a.baseline_id,
         agent_name: a.agent_name,
         service_name: a.service_name,

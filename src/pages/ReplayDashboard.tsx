@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useProject } from '../contexts/ProjectContext';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -823,8 +823,9 @@ function BatchesTab({ projectId }: { projectId: string }) {
 }
 
 export function ReplayDashboard() {
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const projectId = currentProject?.project_id || 'default';
+  const projectId = routeProjectId ?? currentProject?.project_id ?? 'default';
   const [activeTab, setActiveTab] = useState<Tab>('traces');
 
   const tabs: { key: Tab; label: string }[] = [
