@@ -38,7 +38,7 @@ const PRICING_TIERS: PricingTier[] = [
   {
     id: 'lunch-money',
     name: 'Lunch Money',
-    price: '$14',
+    price: '$10',
     features: [
       'All Free features',
       '100k traces/month',
