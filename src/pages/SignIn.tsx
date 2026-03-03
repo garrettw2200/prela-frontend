@@ -17,7 +17,7 @@ export default function SignIn() {
           routing="path"
           path="/sign-in"
           signUpUrl="/sign-up"
-          afterSignInUrl="/"
+          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               rootBox: 'w-full',

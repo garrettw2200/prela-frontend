@@ -45,6 +45,10 @@ function ClerkWithRouter({ children }: { children: React.ReactNode }) {
     <ClerkProvider
       publishableKey={CLERK_PUBLISHABLE_KEY}
       navigate={(to) => navigate(to)}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
     >
       {children}
     </ClerkProvider>

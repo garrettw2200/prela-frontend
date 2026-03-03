@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut();
-    window.location.href = '/';
+    window.location.href = '/sign-in';
   };
 
   return (
