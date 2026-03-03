@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { N8nDashboard } from './pages/N8nDashboard';
 import { MultiAgentDashboard } from './pages/MultiAgentDashboard';
 import { InsightsDashboard } from './pages/InsightsDashboard';
@@ -34,7 +34,6 @@ function App() {
     <ErrorBoundary>
       <ToastProvider>
         <AuthProvider>
-          <BrowserRouter>
               <Routes>
                 {/* Public routes */}
                 <Route path="/sign-in/*" element={<SignIn />} />
@@ -101,7 +100,6 @@ function App() {
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
-            </BrowserRouter>
         </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>
