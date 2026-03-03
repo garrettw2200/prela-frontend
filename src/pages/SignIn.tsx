@@ -14,10 +14,8 @@ export default function SignIn() {
         </div>
 
         <ClerkSignIn
-          routing="path"
           path="/sign-in"
           signUpUrl="/sign-up"
-          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               rootBox: 'w-full',
