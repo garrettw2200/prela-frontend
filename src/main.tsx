@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { ClerkProvider, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -38,17 +38,30 @@ function ClerkApiSetup({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ClerkWithRouter({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+
+  return (
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      navigate={(to) => navigate(to)}
+    >
+      {children}
+    </ClerkProvider>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <ClerkWithRouter>
         <QueryClientProvider client={queryClient}>
           <ClerkApiSetup>
             <App />
           </ClerkApiSetup>
           {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </QueryClientProvider>
-      </ClerkProvider>
+      </ClerkWithRouter>
     </BrowserRouter>
   </React.StrictMode>
 );
