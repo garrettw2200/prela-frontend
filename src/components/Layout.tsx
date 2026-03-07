@@ -31,10 +31,13 @@ export default function Layout({ children }: LayoutProps) {
   const navItems = [
     { path: `${projectBase}/insights`, label: 'Insights' },
     { path: `${projectBase}/multi-agent`, label: 'Multi-Agent' },
+    { path: `${projectBase}/alerts`, label: 'Alerts' },
     { path: `${projectBase}/drift`, label: 'Drift' },
     { path: `${projectBase}/replay`, label: 'Replay' },
     { path: `${projectBase}/eval-generator`, label: 'Eval Generator' },
     { path: `${projectBase}/cost-optimization`, label: 'Cost' },
+    { path: `${projectBase}/guardrails`, label: 'Guardrails' },
+    { path: `${projectBase}/prompts`, label: 'Prompts' },
   ];
 
   const accountItems = [

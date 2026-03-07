@@ -3,6 +3,7 @@ import { N8nDashboard } from './pages/N8nDashboard';
 import { MultiAgentDashboard } from './pages/MultiAgentDashboard';
 import { InsightsDashboard } from './pages/InsightsDashboard';
 import { ProjectManagement } from './pages/ProjectManagement';
+import { AlertsPage } from './pages/AlertsPage';
 import { DriftDashboard } from './pages/DriftDashboard';
 import { EvalGeneratorPage } from './pages/EvalGeneratorPage';
 import { ApiKeysPage } from './pages/ApiKeysPage';
@@ -16,6 +17,8 @@ import { ReplayExecutionDetail } from './pages/ReplayExecutionDetail';
 import { BatchReplayDetail } from './pages/BatchReplayDetail';
 import { TeamSettingsPage } from './pages/TeamSettingsPage';
 import { AcceptInvitationPage } from './pages/AcceptInvitationPage';
+import { PromptsPage } from './pages/PromptsPage';
+import { GuardrailsPage } from './pages/GuardrailsPage';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotFound from './pages/NotFound';
@@ -65,6 +68,7 @@ function App() {
                     <Route path="insights" element={<InsightsDashboard />} />
                     <Route path="n8n" element={<N8nDashboard />} />
                     <Route path="multi-agent" element={<MultiAgentDashboard />} />
+                    <Route path="alerts" element={<AlertsPage />} />
                     <Route path="drift" element={<DriftDashboard />} />
                     <Route path="traces" element={<TracesPage />} />
                     <Route path="eval-generator" element={<EvalGeneratorPage />} />
@@ -72,17 +76,22 @@ function App() {
                     <Route path="replay" element={<ReplayDashboard />} />
                     <Route path="replay/batch/:batchId" element={<BatchReplayDetail />} />
                     <Route path="replay/:executionId" element={<ReplayExecutionDetail />} />
+                    <Route path="prompts" element={<PromptsPage />} />
+                    <Route path="guardrails" element={<GuardrailsPage />} />
                   </Route>
 
                   {/* Legacy flat routes — redirect to project-scoped equivalents */}
                   <Route path="insights" element={<ProjectRedirect to="insights" />} />
                   <Route path="n8n" element={<ProjectRedirect to="n8n" />} />
                   <Route path="multi-agent" element={<ProjectRedirect to="multi-agent" />} />
+                  <Route path="alerts" element={<ProjectRedirect to="alerts" />} />
                   <Route path="drift" element={<ProjectRedirect to="drift" />} />
                   <Route path="traces" element={<ProjectRedirect to="traces" />} />
                   <Route path="eval-generator" element={<ProjectRedirect to="eval-generator" />} />
                   <Route path="cost-optimization" element={<ProjectRedirect to="cost-optimization" />} />
                   <Route path="replay" element={<ProjectRedirect to="replay" />} />
+                  <Route path="prompts" element={<ProjectRedirect to="prompts" />} />
+                  <Route path="guardrails" element={<ProjectRedirect to="guardrails" />} />
 
                   {/* Account management — team-scoped, stay flat */}
                   <Route path="api-keys" element={<ApiKeysPage />} />
